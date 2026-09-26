@@ -3,10 +3,17 @@ import { api, isMockMode } from './api'
 import { ApiError } from './api-error'
 import { Brand } from './components/Brand'
 import { CatalogScreen } from './components/CatalogScreen'
+import { ErrorScreen } from './components/ErrorScreen'
+import { GoodbyeScreen } from './components/GoodbyeScreen'
+import { HelpScreen } from './components/HelpScreen'
+import { ListeningScreen } from './components/ListeningScreen'
 import { PlaceScreen } from './components/PlaceScreen'
 import { QrScreen } from './components/QrScreen'
+import { SignScreen } from './components/SignScreen'
 import { SleepScreen } from './components/SleepScreen'
+import { SuggestScreen } from './components/SuggestScreen'
 import { TarihSkyScreen } from './components/TarihSkyScreen'
+import { ThinkingScreen } from './components/ThinkingScreen'
 import { useAmbientAudio } from './hooks/useAmbientAudio'
 import { useSpeechRecognition } from './hooks/useSpeechRecognition'
 import { speechLocale, t } from './i18n'
@@ -107,7 +114,11 @@ export default function App() {
   const endSession = useCallback(async (farewell = true) => {
     const id = sessionRef.current
     if (!id) return
-    if (farewell) await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
+    if (farewell) {
+      setPhase('goodbye')
+      await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
+      await new Promise((resolve) => setTimeout(resolve, 1200))
+    }
     await api.endSession(id).catch(() => setOffline(true))
     sessionRef.current = null
     setSessionId(null)
@@ -264,6 +275,12 @@ export default function App() {
     setGesturePrompt(false)
 
     const lowered = text.toLowerCase()
+    if (/помощь|help|көмек|что ты умеешь|не умеешь/.test(lowered)) {
+      setPhase('help')
+      void speak(`${copy.helpTitle}. ${copy.help1}. ${copy.help2}. ${copy.help3}. ${copy.help4}.`, lang)
+      window.setTimeout(() => { if (phaseRef.current === 'help') setPhase('catalog') }, 14000)
+      return
+    }
     if (returnPhase === 'tarihsky' && /дальше|forward|алға/.test(lowered)) setSceneReveal(100)
     if (returnPhase === 'tarihsky' && /назад|back|артқа/.test(lowered)) setSceneReveal(0)
     if (returnPhase === 'tarihsky' && /середин|middle|ортасы/.test(lowered)) setSceneReveal(50)
@@ -323,7 +340,7 @@ export default function App() {
       return
     }
     const current = phaseRef.current
-    if (current === 'processing' || current === 'qr' || current === 'recording') return
+    if (current === 'processing' || current === 'qr' || current === 'recording' || current === 'goodbye') return
     setReturnPhase(current)
     setPhase('recording')
     lastActivity.current = Date.now()
@@ -437,12 +454,26 @@ export default function App() {
       {offline && <div className="network-banner">{copy.offline}</div>}
       {phase === 'idle' && sleeping ? (
         <SleepScreen copy={copy} />
+      ) : phase === 'goodbye' ? (
+        <GoodbyeScreen copy={copy} />
+      ) : phase === 'help' ? (
+        <HelpScreen copy={copy} />
+      ) : gesturePrompt && phase !== 'card' && phase !== 'tarihsky' && phase !== 'qr' ? (
+        <SignScreen copy={copy} />
+      ) : phase === 'recording' ? (
+        <ListeningScreen db={db} transcript={interim} copy={copy} />
+      ) : phase === 'processing' ? (
+        <ThinkingScreen copy={copy} answer={answer} />
+      ) : phase === 'error_speech' ? (
+        <ErrorScreen copy={copy} answer={answer} />
       ) : phase === 'card' && place && route ? (
         <PlaceScreen config={config} places={places} place={place} route={route} copy={copy} />
       ) : phase === 'tarihsky' && scene ? (
         <TarihSkyScreen scene={scene} lang={lang} reveal={sceneReveal} copy={copy} />
       ) : phase === 'qr' && qr ? (
         <QrScreen qr={qr} place={place} remaining={qrRemaining} copy={copy} />
+      ) : suggestions.length > 0 && phase === 'catalog' ? (
+        <SuggestScreen answer={answer} suggestions={suggestions} copy={copy} />
       ) : (
         <CatalogScreen
           config={config}

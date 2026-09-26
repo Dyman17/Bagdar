@@ -9,6 +9,8 @@ export type KioskPhase =
   | 'error_speech'
   | 'tarihsky'
   | 'qr'
+  | 'help'
+  | 'goodbye'
 
 export interface Config {
   screen_id: string

@@ -1,0 +1,65 @@
+/* Dedicated phase screens (P02/P03/P08/P10/P11/P12/P13) */
+.listen-screen, .think-screen, .error-screen, .suggest-screen,
+.help-screen, .goodbye-screen, .sign-screen {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 26px; padding: 60px; text-align: center;
+}
+.listen-screen h1, .think-screen h1, .error-screen h1, .suggest-screen h1,
+.help-screen h1, .goodbye-screen h1, .sign-screen h1 {
+  margin: 0; max-width: 1100px;
+  font-family: "Newsreader Variable", Newsreader, serif;
+  font-size: clamp(40px, 5.2vw, 84px); font-weight: 480; letter-spacing: -0.02em;
+}
+.listen-screen p, .think-screen p, .error-screen p, .goodbye-screen p, .sign-screen p {
+  color: var(--muted); font-size: 22px; max-width: 900px;
+}
+.listen-screen .voice-halo { transform: scale(1.5); }
+.listen-hint { font-size: 26px !important; color: var(--ink) !important; }
+.listen-orbit {
+  position: absolute; width: min(72vmin, 640px); aspect-ratio: 1; border-radius: 50%;
+  border: 1px solid rgba(241, 210, 155, 0.22);
+  animation: breathe 3.2s ease-in-out infinite; pointer-events: none;
+}
+.think-orbit { position: relative; width: 150px; height: 150px; }
+.think-orbit i {
+  position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent;
+  border-top-color: var(--sand); animation: liquid-spin 1.4s linear infinite;
+}
+.think-orbit i:nth-child(2) { inset: 18px; animation-duration: 2.1s; opacity: 0.6; }
+.think-orbit i:nth-child(3) { inset: 36px; animation-duration: 2.8s; opacity: 0.35; }
+.error-mark {
+  width: 110px; height: 110px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px; border: 1px solid var(--glass-edge); background: var(--glass);
+}
+.suggest-list, .help-list { display: flex; flex-direction: column; gap: 14px; width: min(760px, 80%); }
+.suggest-row, .help-row {
+  display: flex; align-items: center; gap: 18px; padding: 18px 26px; border-radius: 18px;
+  font-size: 24px; animation: screen-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.suggest-row b, .help-row b { color: var(--sand); font-size: 18px; }
+.goodbye-wave {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(241,210,155,0.35), transparent 70%);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+.sign-frame {
+  position: relative; width: min(560px, 60%); aspect-ratio: 4/3; border-radius: 20px;
+  border: 1px solid var(--glass-edge); background: rgba(0,0,0,0.35);
+}
+.sign-corner { position: absolute; width: 34px; height: 34px; border: 3px solid var(--sand); }
+.sign-corner:nth-child(1) { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+.sign-corner:nth-child(2) { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+.sign-corner:nth-child(3) { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+.sign-corner:nth-child(4) { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+.sign-live {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  color: #d56f63; font-size: 14px; letter-spacing: 0.2em; animation: hint-pulse 1.6s infinite;
+}
+.sign-screen small { color: var(--dim); font-size: 16px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 10px; color: var(--sand);
+  font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+}
+.eyebrow i { width: 26px; height: 1px; background: var(--sand); display: inline-block; }
