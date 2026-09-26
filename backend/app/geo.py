@@ -34,9 +34,34 @@ RU_DIRECTIONS = [
     (337.5, "идите на северо-запад"),
 ]
 
+KK_DIRECTIONS = [
+    (22.5, "солтүстікке қарай жүріңіз"),
+    (67.5, "солтүстік-шығысқа қарай жүріңіз"),
+    (112.5, "шығысқа қарай жүріңіз"),
+    (157.5, "оңтүстік-шығысқа қарай жүріңіз"),
+    (202.5, "оңтүстікке қарай жүріңіз"),
+    (247.5, "оңтүстік-батысқа қарай жүріңіз"),
+    (292.5, "батысқа қарай жүріңіз"),
+    (337.5, "солтүстік-батысқа қарай жүріңіз"),
+]
+
+EN_DIRECTIONS = [
+    (22.5, "head north"),
+    (67.5, "head northeast"),
+    (112.5, "head east"),
+    (157.5, "head southeast"),
+    (202.5, "head south"),
+    (247.5, "head southwest"),
+    (292.5, "head west"),
+    (337.5, "head northwest"),
+]
+
 
 def direction_text(bearing: float, lang: str = "ru") -> str:
-    for bound, text in RU_DIRECTIONS:
+    table = KK_DIRECTIONS if lang == "kk" else (EN_DIRECTIONS if lang == "en" else RU_DIRECTIONS)
+    fallback = "солтүстікке қарай жүріңіз" if lang == "kk" else ("head north" if lang == "en" else "идите на север")
+    for bound, text in table:
         if bearing < bound:
             return text
-    return "идите на север"
+    return fallback
+

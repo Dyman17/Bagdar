@@ -44,3 +44,11 @@ def new_qr_token(place_id: int, lang: str, session_id: str, ttl: int = 3600) -> 
     token = secrets.token_urlsafe(9)
     QR_TOKENS[token] = {"place_id": place_id, "lang": lang, "session_id": session_id, "exp": time.time() + ttl}
     return token, ttl
+
+
+def get_qr_token(token: str) -> dict | None:
+    data = QR_TOKENS.get(token)
+    if not data or time.time() > data.get("exp", 0):
+        return None
+    return data
+

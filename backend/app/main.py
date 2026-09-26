@@ -8,7 +8,7 @@ import urllib.request
 
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel, Field
@@ -241,13 +241,253 @@ def place_route(place_id: int, mode: str = Query(default="walk"), fallback: int 
 
 # ---------- 03. QR ----------
 @app.post("/api/qr")
-def create_qr(body: QrIn):
+def create_qr(body: QrIn, request: Request):
     p = get_place(places_all(), body.place_id)
     if p is None:
         return err(404, "PLACE_NOT_FOUND", "Место не найдено", body.lang, {"place_id": body.place_id})
     token, ttl = store.new_qr_token(body.place_id, body.lang, body.session_id)
     store.log_event(body.session_id, "qr_scan", body.place_id, body.lang)
-    return {"url": f"https://m.example/r/{token}", "payload_version": 1, "expires_in_sec": ttl}
+    base = os.getenv("PUBLIC_URL", "").rstrip("/") or str(request.base_url).rstrip("/")
+    return {"url": f"{base}/r/{token}", "payload_version": 1, "expires_in_sec": ttl}
+
+
+@app.get("/r/{token}", response_class=HTMLResponse)
+def mobile_route_landing(token: str):
+    data = store.get_qr_token(token)
+    if not data:
+        html = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaGdar — Ссылка не найдена</title>
+  <style>
+    body { margin: 0; padding: 24px; font-family: system-ui, -apple-system, sans-serif; background: #070d1e; color: #fff; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 32px 24px; max-width: 400px; backdrop-filter: blur(20px); }
+    h1 { font-size: 22px; margin: 0 0 12px; color: #f87171; }
+    p { color: #94a3b8; font-size: 15px; line-height: 1.5; margin: 0 0 20px; }
+    .tag { display: inline-block; padding: 6px 14px; border-radius: 9999px; background: rgba(0, 194, 255, 0.15); color: #38bdf8; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">BaGdar · Ақтау</div>
+    <h1 style="margin-top: 16px;">Срок действия истёк</h1>
+    <p>Маршрут не найден или срок действия QR-кода истёк. Пожалуйста, отсканируйте новый QR-код на туристической стелле BaGdar.</p>
+  </div>
+</body>
+</html>"""
+        return HTMLResponse(content=html, status_code=404)
+
+    places = places_all()
+    place = get_place(places, data["place_id"])
+    if not place:
+        return HTMLResponse(content="<h1>Место не найдено</h1>", status_code=404)
+
+    lang = data.get("lang", "ru")
+    t = local_text(place, lang)
+    dist_m = round(haversine_m(ORIGIN_LAT, ORIGIN_LNG, place.lat, place.lng))
+    dur_min = max(1, round(dist_m / (80 if place.access == "walk" else 500)))
+    bearing = bearing_deg(ORIGIN_LAT, ORIGIN_LNG, place.lat, place.lng)
+    dir_str = direction_text(bearing, lang)
+
+    dgis_url = f"https://2gis.kz/aktau/search/{place.lat}%2C{place.lng}"
+    yandex_url = f"https://yandex.ru/maps/?rtext={ORIGIN_LAT},{ORIGIN_LNG}~{place.lat},{place.lng}&rtt={'pd' if place.access == 'walk' else 'auto'}"
+    google_url = f"https://www.google.com/maps/dir/?api=1&origin={ORIGIN_LAT},{ORIGIN_LNG}&destination={place.lat},{place.lng}&travelmode={'walking' if place.access == 'walk' else 'driving'}"
+
+    photo_url = place.photos[0] if place.photos else place.thumb_url
+    photo_img = f'<img src="{photo_url}" alt="{t.name}" class="hero-img" onerror="this.style.display=\'none\'">' if photo_url else ''
+    open_label = "Всегда открыто" if not place.hours else f"{place.hours.open} – {place.hours.close}"
+    mode_label = "Пешком" if place.access == "walk" else "На транспорте"
+
+    html = f"""<!DOCTYPE html>
+<html lang="{lang}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{t.name} — BaGdar</title>
+  <style>
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #0b1329 0%, #060b18 100%);
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }}
+    .wrap {{ width: 100%; max-width: 480px; }}
+    .header {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }}
+    .brand {{
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }}
+    .city-badge {{
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      color: #94a3b8;
+    }}
+    .card {{
+      background: rgba(19, 31, 55, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      backdrop-filter: blur(24px);
+    }}
+    .hero-img {{
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }}
+    .badges {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }}
+    .badge {{
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }}
+    .badge.green {{
+      background: rgba(74, 222, 128, 0.12);
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.25);
+    }}
+    h1 {{
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: #ffffff;
+      line-height: 1.25;
+    }}
+    .summary {{
+      font-size: 15px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin: 0 0 16px;
+    }}
+    .metrics-box {{
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }}
+    .metric-label {{ font-size: 12px; color: #64748b; margin-bottom: 2px; }}
+    .metric-val {{ font-size: 16px; font-weight: 700; color: #f8fafc; }}
+    .actions-title {{
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }}
+    .btn {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+    }}
+    .btn:active {{ transform: scale(0.98); }}
+    .btn-2gis {{ background: #2cb742; color: #ffffff; box-shadow: 0 4px 12px rgba(44, 183, 66, 0.3); }}
+    .btn-yandex {{ background: #fc3f1d; color: #ffffff; box-shadow: 0 4px 12px rgba(252, 63, 29, 0.3); }}
+    .btn-google {{ background: rgba(255, 255, 255, 0.1); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); }}
+    .hint {{
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 18px;
+      line-height: 1.4;
+    }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <span class="brand">BaGdar</span>
+      <span class="city-badge">Ақтау · Манғыстау</span>
+    </div>
+
+    <div class="card">
+      {photo_img}
+      <div class="badges">
+        <span class="badge">{place.category.upper()}</span>
+        <span class="badge green">{open_label}</span>
+        <span class="badge">{mode_label}</span>
+      </div>
+
+      <h1>{t.name}</h1>
+      <p class="summary">{t.summary or t.description}</p>
+
+      <div class="metrics-box">
+        <div>
+          <div class="metric-label">Расстояние от стелы</div>
+          <div class="metric-val">~{dist_m} м ({dur_min} мин)</div>
+        </div>
+        <div>
+          <div class="metric-label">Направление</div>
+          <div class="metric-val">{dir_str}</div>
+        </div>
+      </div>
+
+      <div class="actions-title">Открыть навигатор на телефоне:</div>
+      <a href="{dgis_url}" target="_blank" rel="noopener" class="btn btn-2gis">
+        <span>🟢 Открыть в 2ГИС</span>
+      </a>
+      <a href="{yandex_url}" target="_blank" rel="noopener" class="btn btn-yandex">
+        <span>🟡 Открыть в Яндекс Картах</span>
+      </a>
+      <a href="{google_url}" target="_blank" rel="noopener" class="btn btn-google">
+        <span>🔵 Открыть в Google Maps</span>
+      </a>
+
+      <div class="hint">
+        Маршрут построен от интерактивной стелы BaGdar (набережная 15-го микрорайона, Актау).
+      </div>
+    </div>
+  </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
 
 
 # ---------- 04. Диалог ----------

@@ -81,6 +81,14 @@ def test_scene_qr_event_session_health():
     r = client.post("/api/qr", json={"place_id": 1, "lang": "ru", "session_id": "s1"})
     assert r.status_code == 200
     assert r.json()["payload_version"] == 1
+    qr_url = r.json()["url"]
+    token = qr_url.split("/")[-1]
+    res_landing = client.get(f"/r/{token}")
+    assert res_landing.status_code == 200
+    assert "2GIS" in res_landing.text or "2gis" in res_landing.text
+
+    bad_landing = client.get("/r/invalid_token_xyz")
+    assert bad_landing.status_code == 404
 
     assert client.post("/api/event", json={"session_id": "s1", "type": "place_view", "lang": "ru"}).json() == {"ok": True}
     bad = client.post("/api/event", json={"session_id": "s1", "type": "nope", "lang": "ru"})
@@ -91,4 +99,15 @@ def test_scene_qr_event_session_health():
     assert h["status"] == "ok" and h["version"] == "0.1.0"
 
     assert "sessions" in client.get("/api/admin/metrics").json()
+    assert "sessions" in client.get("/api/stats").json()
     assert isinstance(client.get("/api/admin/heatmap").json(), list)
+    assert isinstance(client.get("/api/admin/places/stats").json(), list)
+
+    fb = client.post("/api/feedback", json={"session_id": "s1", "place_id": 1, "rating": 5, "comment": "Great!"})
+    assert fb.status_code == 200
+    assert fb.json() == {"ok": True}
+
+    tts_resp = client.post("/api/tts", json={"text": "Привет", "lang": "ru"})
+    assert tts_resp.status_code == 503
+    assert tts_resp.json()["error"]["code"] == "AI_UNAVAILABLE"
+
