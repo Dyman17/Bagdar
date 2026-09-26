@@ -18,11 +18,14 @@ from app.dialog import decide, detect_lang, match_places, say
 from app.geo import ORIGIN_LAT, ORIGIN_LNG, bearing_deg, direction_text, haversine_m
 from app import store
 
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 VERSION = "0.1.0"
 SCREEN_ID = os.getenv("SCREEN_ID", "AKTAU-EMB-01")
 ORIGIN_HEADING = float(os.getenv("ORIGIN_HEADING_DEG", "45"))
 DISTRICT = "aktau-15-mkr"
-CATEGORIES = ["park", "mall", "market", "history", "nature", "religion", "culture", "food", "hotel", "tour"]
+CATEGORIES = ["park", "mall", "market", "history", "nature", "religion", "culture"]
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
@@ -36,6 +39,22 @@ def err(status: int, code: str, message: str, lang: str = "ru", details: dict | 
     return JSONResponse(
         status_code=status,
         content={"error": {"code": code, "message": message, "lang": lang, "details": details or {}}},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"error": {"code": "BAD_REQUEST", "message": "Ошибка валидации входных данных", "lang": "ru", "details": {"errors": exc.errors()}}},
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": "HTTP_ERROR", "message": str(exc.detail), "lang": "ru", "details": {}}},
     )
 
 
@@ -166,7 +185,7 @@ def osrm_route(mode: str, lat2: float, lng2: float) -> dict | None:
         f"?overview=full&geometries=geojson&steps=true"
     )
     try:
-        with urllib.request.urlopen(url, timeout=4) as resp:
+        with urllib.request.urlopen(url, timeout=1.5) as resp:
             data = json.loads(resp.read().decode())
         routes = data.get("routes") or []
         if not routes:
@@ -497,6 +516,8 @@ def _dialog(payload: DialogIn):
     if payload.audio_b64 and not text:
         # STT на сервере пока нет — честно отвечаем 422, фронт переспрашивает
         return err(422, "SPEECH_UNRECOGNIZED", "Не расслышал, повторите", payload.lang, {"stage": "stt"})
+    if payload.audio_b64 and len(payload.audio_b64) > 1_500_000:
+        return err(422, "SPEECH_UNRECOGNIZED", "Превышена длительность аудио (макс. 15 сек)", payload.lang, {"stage": "audio_limit"})
     if not text and not payload.signs:
         return err(422, "SPEECH_UNRECOGNIZED", "Не расслышал, повторите", payload.lang, {"stage": "stt"})
     if payload.signs and not text:
@@ -611,6 +632,11 @@ def _metrics():
     for e in store.EVENTS:
         by_lang[e["lang"]] = by_lang.get(e["lang"], 0) + 1
         langs.add(e["lang"])
+        ts = e.get("ts")
+        if ts:
+            import time
+            hr = time.strftime("%H:00", time.localtime(ts))
+            by_hour[hr] = by_hour.get(hr, 0) + 1
         if e.get("place_id"):
             top[e["place_id"]] = top.get(e["place_id"], 0) + 1
     places = places_all()
@@ -647,25 +673,24 @@ def admin_heatmap():
 
 @app.get("/api/admin/places/stats")
 def admin_places_stats():
-    counts: dict[int, dict] = {}
+    places = places_all()
+    counts: dict[int, dict] = {p.id: {"requests": 0, "route_clicks": 0, "scene_opens": 0} for p in places}
     for e in store.EVENTS:
         pid = e.get("place_id")
-        if not pid:
-            continue
-        c = counts.setdefault(pid, {"requests": 0, "route_clicks": 0, "scene_opens": 0})
-        c["requests"] += 1
-        if e["type"] == "route_click":
-            c["route_clicks"] += 1
-        if e["type"] == "scene_open":
-            c["scene_opens"] += 1
-    places = places_all()
+        if pid and pid in counts:
+            counts[pid]["requests"] += 1
+            if e["type"] == "route_click":
+                counts[pid]["route_clicks"] += 1
+            if e["type"] == "scene_open":
+                counts[pid]["scene_opens"] += 1
     names = {p.id: local_text(p, "ru").name for p in places}
     return [{"place_id": pid, "name": names.get(pid, str(pid)), **c, "dead": c["requests"] == 0} for pid, c in counts.items()]
 
 
 @app.post("/api/feedback")
 def feedback(body: FeedbackIn):
-    store.log_event(body.session_id, "voice_query", body.place_id, "ru")
+    rating = body.rating if body.rating is not None else body.value
+    store.log_feedback(body.session_id, body.place_id, rating, body.comment)
     return {"ok": True}
 
 

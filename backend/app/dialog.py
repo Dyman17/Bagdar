@@ -3,7 +3,27 @@ from __future__ import annotations
 
 from app.catalog import Place, local_text
 
-FAREWELL = ("спасибо", "пока", "рахмет", "рақмет", "сау бол", "до свидания", "всё", "все", "bye", "thank", "goodbye", "qosh")
+import re
+
+FAREWELL_PATTERNS = [
+    r"\bспасибо\b",
+    r"\bрахмет\b",
+    r"\bрақмет\b",
+    r"\bсау\s*бол(?:ыңыз)?\b",
+    r"\bдо\s*свидания\b",
+    r"\bbye\b",
+    r"\bgoodbye\b",
+    r"\bthank(?:s|\s*you)?\b",
+    r"\bqosh\b",
+    r"\bпока\b(?!\w)",  # exact word 'пока', not 'покажи', 'показать'
+    r"^(?:на\s+этом\s+)?вс[её][!.]*$",  # only standalone "всё", "все", "на этом всё"
+    r"\bвс[её],\s*(?:спасибо|хватит|пока)\b",
+]
+
+def is_farewell(text: str) -> bool:
+    t = text.lower().strip()
+    return any(re.search(pat, t, re.IGNORECASE) for pat in FAREWELL_PATTERNS)
+
 QR_WORDS = ("телефон", "qr", "кьюар", "скан", "phone", "telefon")
 SCENE_WORDS = ("как было", "раньше", "история", "тарих", "тарихы", "then", "now", "тогда", "сейчас", "historic", "history")
 NEARBY_WORDS = ("рядом", "поблизости", "nearby", "near", "жанында", "маңында", "что посмотреть", "куда сходить", "где поесть", "отели", "қайда баруға")
@@ -93,11 +113,11 @@ def match_places(text: str, places: list[Place]) -> list[Place]:
             w = word.strip("?,.!").lower()
             if len(w) < 4 or w in STOPWORDS:
                 continue
-            stem = w[:5] if len(w) >= 5 else w
+            stem = w[:4] if len(w) >= 4 else w
             if w in blob:
                 hits += len(w)  # длинные слова весят больше ("амфитеатр" > "как")
                 continue
-            if any(bt.startswith(stem) or stem.startswith(bt[:5]) for bt in btokens if len(bt) >= 4):
+            if any(bt.startswith(stem) or stem.startswith(bt[:4]) for bt in btokens if len(bt) >= 4):
                 hits += len(stem)
         if hits:
             scored.append((hits, p))
@@ -109,7 +129,7 @@ def decide(text: str, places: list[Place], lang: str, last_place_id: int | None)
     """Возвращает intent/place_id/actions/suggestions/say-key."""
     t = text.lower()
 
-    if any(w in t for w in FAREWELL):
+    if is_farewell(text):
         return {"intent": "farewell", "place_id": None, "actions": [{"show": "sleep"}], "suggestions": [], "say_key": "bye"}
 
     matched = match_places(text, places)

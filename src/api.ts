@@ -13,7 +13,7 @@ import type {
 } from './types'
 
 const BASE_URL = '/api'
-export const isMockMode = import.meta.env.VITE_USE_MOCKS !== 'false'
+export const isMockMode = import.meta.env.VITE_USE_MOCKS === 'true'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response

@@ -193,17 +193,31 @@ export default function App() {
         else if (!cancelled) setPlaces(mockSummaries(nextConfig.default_lang))
       }
 
-      // Pre-seed default place and route for instant inspection
-      const defaultPlace = mockDetail(2, nextConfig.default_lang) ?? null
-      const defaultRoute = mockRoutes[2] ?? null
-      setPlace(defaultPlace)
-      setRoute(defaultRoute)
-      setScene(mockScene)
-      setQr({
-        url: 'https://bagdar.kz/route/2?token=demo',
-        payload_version: 1,
-        expires_in_sec: 60,
-      })
+      if (!isMockMode) {
+        try {
+          const livePlace = await api.getPlace(2, nextConfig.default_lang)
+          const liveRoute = await api.getRoute(2, livePlace.access, false, nextConfig.default_lang).catch(() =>
+            api.getRoute(2, livePlace.access, true, nextConfig.default_lang),
+          )
+          if (!cancelled) {
+            setPlace(livePlace)
+            setRoute(liveRoute)
+          }
+        } catch {
+          /* Live place loaded on demand */
+        }
+      } else {
+        const defaultPlace = mockDetail(2, nextConfig.default_lang) ?? null
+        const defaultRoute = mockRoutes[2] ?? null
+        setPlace(defaultPlace)
+        setRoute(defaultRoute)
+        setScene(mockScene)
+        setQr({
+          url: 'https://bagdar.kz/route/2?token=demo',
+          payload_version: 1,
+          expires_in_sec: 60,
+        })
+      }
     }
     void boot()
     return () => {
@@ -252,10 +266,9 @@ export default function App() {
           let nextRoute: RouteResponse
           try {
             nextRoute = await api.getRoute(placeId, nextPlace.access, false, actionLang)
-          } catch (error) {
-            if (error instanceof ApiError && error.code === 'ROUTE_UNAVAILABLE') {
-              nextRoute = await api.getRoute(placeId, nextPlace.access, true, actionLang)
-            } else throw error
+          } catch {
+            // Fast fallback: if OSRM / internet times out or fails, fetch approximate straight-line route!
+            nextRoute = await api.getRoute(placeId, nextPlace.access, true, actionLang)
           }
           setPlace(nextPlace)
           setRoute(nextRoute)

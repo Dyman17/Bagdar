@@ -6,10 +6,15 @@ from collections import defaultdict
 SESSIONS: dict[str, dict] = {}
 EVENTS: list[dict] = []
 QR_TOKENS: dict[str, dict] = {}
+FEEDBACK: list[dict] = []
 VOICE_HITS: dict[str, list[float]] = defaultdict(list)
 
 RATE_LIMIT = 10
 RATE_WINDOW_SEC = 60
+
+
+def log_feedback(session_id: str, place_id: int | None = None, rating: int | None = None, comment: str | None = None) -> None:
+    FEEDBACK.append({"session_id": session_id, "place_id": place_id, "rating": rating, "comment": comment, "ts": time.time()})
 
 
 def get_session(session_id: str) -> dict:

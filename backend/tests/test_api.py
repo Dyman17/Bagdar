@@ -66,6 +66,21 @@ def test_dialog_turn_route_qr_scene():
     r = client.post("/api/voice", json={"session_id": s, "lang": "ru", "text": "Как пройти к амфитеатру?", "context": {}})
     assert r.json()["need_route"] is True
 
+    # Проверяем, что 'покажи' и 'все' не триггерят farewell (баг подстроки)
+    r_show = client.post("/api/dialog/turn", json={"session_id": s, "lang": "ru", "text": "Покажи амфитеатр", "context": {}})
+    assert r_show.status_code == 200
+    assert r_show.json()["place_id"] == 1
+    assert r_show.json()["actions"][0]["show"] == "route"
+
+    r_all = client.post("/api/dialog/turn", json={"session_id": s, "lang": "ru", "text": "Покажи все музеи", "context": {}})
+    assert r_all.status_code == 200
+    assert r_all.json().get("intent") != "farewell"
+    assert not any(a.get("show") == "sleep" for a in r_all.json().get("actions", []))
+
+    r_bye = client.post("/api/dialog/turn", json={"session_id": s, "lang": "ru", "text": "Спасибо, до свидания!", "context": {}})
+    assert r_bye.status_code == 200
+    assert r_bye.json()["actions"][0]["show"] == "sleep"
+
     r = client.post("/api/dialog/turn", json={"session_id": "empty", "lang": "ru", "text": "", "context": {}})
     assert r.status_code == 422
     assert r.json()["error"]["code"] == "SPEECH_UNRECOGNIZED"
