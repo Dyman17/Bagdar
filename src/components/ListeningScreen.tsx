@@ -11,9 +11,12 @@ interface Props {
 export function ListeningScreen({ db, transcript, copy }: Props) {
   return (
     <main className="listen-screen screen-enter">
-      <div className="listen-orbit" />
-      <VoiceHalo phase={'recording' as KioskPhase} db={db} label={copy.listening} transcript={transcript} />
-      <p className="listen-hint">{transcript || copy.prompt}</p>
+      <div className="listen-orbit" aria-hidden="true" />
+      <section className="hero-copy listen-copy">
+        <span className="eyebrow"><i />{copy.listening}</span>
+        <h1>{transcript || '…'}</h1>
+        <VoiceHalo phase={'recording' as KioskPhase} db={db} label={copy.prompt} transcript="" />
+      </section>
     </main>
   )
 }

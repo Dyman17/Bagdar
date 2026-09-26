@@ -1,65 +1,69 @@
-/* Dedicated phase screens (P02/P03/P08/P10/P11/P12/P13) */
+/* Phase screens in yernurge liquid-glass language:
+   left hero composition, Newsreader display, sand eyebrow, glass panels. */
+
 .listen-screen, .think-screen, .error-screen, .suggest-screen,
-.help-screen, .goodbye-screen, .sign-screen {
-  position: absolute; inset: 0; z-index: 20;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 26px; padding: 60px; text-align: center;
+.help-screen, .sign-screen {
+  position: absolute; inset: 0; overflow: hidden;
 }
-.listen-screen h1, .think-screen h1, .error-screen h1, .suggest-screen h1,
-.help-screen h1, .goodbye-screen h1, .sign-screen h1 {
-  margin: 0; max-width: 1100px;
-  font-family: "Newsreader Variable", Newsreader, serif;
-  font-size: clamp(40px, 5.2vw, 84px); font-weight: 480; letter-spacing: -0.02em;
+.listen-screen .hero-copy, .think-screen .hero-copy, .error-screen .hero-copy,
+.suggest-screen .hero-copy, .help-screen .hero-copy {
+  position: absolute; top: 0; left: 0; z-index: 10;
+  display: flex; flex-direction: column; justify-content: center;
+  width: 60%; height: 100%; padding: 124px 0 88px 6.4vw;
 }
-.listen-screen p, .think-screen p, .error-screen p, .goodbye-screen p, .sign-screen p {
-  color: var(--muted); font-size: 22px; max-width: 900px;
+.suggest-big span {
+  padding: 16px 0 !important; font-size: 19px !important;
+  animation: screen-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.listen-screen .voice-halo { transform: scale(1.5); }
-.listen-hint { font-size: 26px !important; color: var(--ink) !important; }
+.suggest-big span:nth-child(2) { animation-delay: 120ms; }
+.suggest-big span:nth-child(3) { animation-delay: 240ms; }
+.suggest-big span:nth-child(4) { animation-delay: 360ms; }
+.suggest-big b { font-size: 12px !important; }
+
 .listen-orbit {
-  position: absolute; width: min(72vmin, 640px); aspect-ratio: 1; border-radius: 50%;
-  border: 1px solid rgba(241, 210, 155, 0.22);
+  position: absolute; top: 50%; right: 6vw; z-index: 5;
+  width: min(58vmin, 560px); aspect-ratio: 1; border-radius: 50%;
+  border: 1px solid rgba(241, 210, 155, 0.2);
+  box-shadow: 0 0 120px rgba(70, 140, 129, 0.12);
+  transform: translateY(-50%);
   animation: breathe 3.2s ease-in-out infinite; pointer-events: none;
 }
-.think-orbit { position: relative; width: 150px; height: 150px; }
-.think-orbit i {
-  position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent;
-  border-top-color: var(--sand); animation: liquid-spin 1.4s linear infinite;
+.think-lens {
+  position: absolute; top: 50%; right: 9vw; z-index: 5;
+  width: min(44vmin, 420px); aspect-ratio: 1; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background:
+    radial-gradient(circle at 36% 25%, rgba(255, 255, 255, 0.3), transparent 20%),
+    radial-gradient(circle at 70% 75%, rgba(95, 190, 178, 0.2), transparent 45%),
+    rgba(210, 235, 224, 0.06);
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.08), 0 15px 45px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px) saturate(150%);
+  transform: translateY(-50%);
+  animation: breathe 1.8s ease-in-out infinite;
+  overflow: hidden;
 }
-.think-orbit i:nth-child(2) { inset: 18px; animation-duration: 2.1s; opacity: 0.6; }
-.think-orbit i:nth-child(3) { inset: 36px; animation-duration: 2.8s; opacity: 0.35; }
-.error-mark {
-  width: 110px; height: 110px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 56px; border: 1px solid var(--glass-edge); background: var(--glass);
+.think-lens .voice-caustic { position: absolute; inset: 5px; border-radius: 50%;
+  background: conic-gradient(from 230deg, transparent, rgba(255, 255, 255, 0.16), transparent 32%, rgba(80, 154, 145, 0.15), transparent 70%);
+  filter: blur(5px); animation: liquid-spin 6s linear infinite reverse; }
+
+.goodbye-screen {
+  position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 88%, rgba(56, 112, 105, 0.22), transparent 43%), linear-gradient(#061110, #081a19);
 }
-.suggest-list, .help-list { display: flex; flex-direction: column; gap: 14px; width: min(760px, 80%); }
-.suggest-row, .help-row {
-  display: flex; align-items: center; gap: 18px; padding: 18px 26px; border-radius: 18px;
-  font-size: 24px; animation: screen-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.suggest-row b, .help-row b { color: var(--sand); font-size: 18px; }
-.goodbye-wave {
-  width: 180px; height: 180px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(241,210,155,0.35), transparent 70%);
-  animation: breathe 2.4s ease-in-out infinite;
-}
+.goodbye-screen .sleep-time h1 { font-size: clamp(64px, 7vw, 120px); line-height: 0.95; }
+.sign-screen { display: block; }
 .sign-frame {
-  position: relative; width: min(560px, 60%); aspect-ratio: 4/3; border-radius: 20px;
-  border: 1px solid var(--glass-edge); background: rgba(0,0,0,0.35);
+  position: absolute; top: 50%; right: 6vw; z-index: 10;
+  width: min(560px, 30vw); aspect-ratio: 4/3; border-radius: 24px;
+  transform: translateY(-50%);
 }
-.sign-corner { position: absolute; width: 34px; height: 34px; border: 3px solid var(--sand); }
-.sign-corner:nth-child(1) { top: 12px; left: 12px; border-right: none; border-bottom: none; }
-.sign-corner:nth-child(2) { top: 12px; right: 12px; border-left: none; border-bottom: none; }
-.sign-corner:nth-child(3) { bottom: 12px; left: 12px; border-right: none; border-top: none; }
-.sign-corner:nth-child(4) { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+.sign-corner { position: absolute; width: 30px; height: 30px; border: 2px solid var(--sand); }
+.sign-corner:nth-child(1) { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+.sign-corner:nth-child(2) { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+.sign-corner:nth-child(3) { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+.sign-corner:nth-child(4) { bottom: 14px; right: 14px; border-left: none; border-top: none; }
 .sign-live {
-  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
-  color: #d56f63; font-size: 14px; letter-spacing: 0.2em; animation: hint-pulse 1.6s infinite;
+  position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+  color: #d56f63; font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+  animation: hint-pulse 1.6s infinite;
 }
-.sign-screen small { color: var(--dim); font-size: 16px; }
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 10px; color: var(--sand);
-  font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
-}
-.eyebrow i { width: 26px; height: 1px; background: var(--sand); display: inline-block; }
