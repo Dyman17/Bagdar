@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Фото места готовится">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#c9e9e9"/>
+      <stop offset="1" stop-color="#f5e8c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#sky)"/>
+  <path d="M0 245 Q80 228 160 245 T320 245 T480 245 T640 245 V400 H0Z" fill="#4d91a0"/>
+  <path d="M0 292 Q80 275 160 292 T320 292 T480 292 T640 292" fill="none" stroke="#a8d5d7" stroke-width="8"/>
+  <circle cx="320" cy="162" r="36" fill="#e7a75a"/>
+  <path d="M320 210 Q265 152 284 118 A42 42 0 0 1 356 118 Q375 152 320 210Z" fill="#354e5a"/>
+  <circle cx="320" cy="140" r="14" fill="#f5e8c9"/>
+  <rect x="120" y="324" width="400" height="46" rx="23" fill="#173d4a"/>
+  <text x="320" y="354" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="20">Фото места готовится</text>
+</svg>

@@ -1,0 +1,395 @@
+[
+  {
+    "id": 1,
+    "category": "culture",
+    "lat": 43.661365,
+    "lng": 51.132965,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "Амфитеатр",
+        "summary": "Каспий жағалауындағы ашық сахна — қала мерекелерінің орталығы.",
+        "description": "15-шағынаудан жағалауындағы ашық амфитеатр. Мұнда концерттер, қала күні және жазғы іс-шаралар өтеді. Кешке теңізге күн батуы көрінеді.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Амфитеатр",
+        "summary": "Открытая сцена на берегу Каспия — центр городских праздников.",
+        "description": "Амфитеатр на набережной 15-го микрорайона. Здесь проходят концерты, День города и летние мероприятия. Вечером видно закат над морем.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Amphitheater",
+        "summary": "Open-air stage on the Caspian shore — the city's event hub.",
+        "description": "Amphitheater on the 15th microdistrict waterfront. It hosts concerts, City Day and summer events. In the evening you can watch the sunset over the sea.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "category": "park",
+    "lat": 43.662252,
+    "lng": 51.133075,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "15-шағынаудан жағалауы",
+        "summary": "Теңіз бойымен 2 шақырымға созылатын серуен жолы.",
+        "description": "Амфитеатрдан солтүстікке қарай созылатын жағалау. Жүгіруге, велосипедке және кешкі серуенге ыңғайлы. Орындықтар мен түнгі жарық бар.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Набережная 15-го микрорайона",
+        "summary": "Променад вдоль моря длиной около 2 км.",
+        "description": "Набережная тянется от амфитеатра на север. Подходит для бега, велосипеда и вечерних прогулок. Есть скамейки и ночная подсветка.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "15th Microdistrict Promenade",
+        "summary": "Seaside promenade about 2 km long.",
+        "description": "The waterfront runs north from the amphitheater. Good for jogging, cycling and evening walks. Benches and night lighting available.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    },
+    "scene": {
+      "modern_url": "/static/scenes/2/modern.jpg",
+      "historic_url": "/static/scenes/2/historic.jpg",
+      "attribution": "художественная реконструкция",
+      "texts": {
+        "kk": {"title": "Бұрын және қазір", "body": "Жағалау 1970-жылдары салынған. Бұрын мұнда бос жартас болды, қазір — қаланың сүйікті серуен орны."},
+        "ru": {"title": "Тогда и сейчас", "body": "Набережная построена в 1970-х. Раньше здесь был пустынный берег, теперь — любимое место прогулок."},
+        "en": {"title": "Then and Now", "body": "The promenade was built in the 1970s. Once an empty shore, now the city's favourite walk."}
+      },
+      "sources": ["https://www.gov.kz/memleket/entities/mangystau?lang=ru"]
+    }
+  },
+  {
+    "id": 3,
+    "category": "nature",
+    "lat": 43.658903,
+    "lng": 51.133838,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "Көрініс алаңы",
+        "summary": "Каспийге панорамалық көрініс — фотоға ең жақсы нүкте.",
+        "description": "Жартас жиегіндегі алаң. Күн батқанда фотоға түсуге тамаша. Балалармен абай болыңыз — қоршау аласа.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Смотровая площадка",
+        "summary": "Панорама Каспия — лучшая точка для фото.",
+        "description": "Площадка на краю обрыва. Идеальна для фото на закате. С детьми осторожно — ограждение низкое.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Viewpoint",
+        "summary": "Caspian panorama — the best photo spot.",
+        "description": "Terrace on the cliff edge. Perfect for sunset photos. With kids be careful — the railing is low.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "category": "culture",
+    "lat": 43.659594,
+    "lng": 51.134827,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "«Құдықшылар» мүсіні",
+        "summary": "Маңғыстаудың су іздеушілеріне арналған мүсін.",
+        "description": "Шөлді өңірде судың қадірін еске салатын композиция. Жағалаудың орта тұсында, серуен жолының жанында тұр.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Скульптура «Құдықшылар»",
+        "summary": "Памятник искателям воды Мангыстау.",
+        "description": "Композиция напоминает о ценности воды в пустынном крае. Стоит в середине набережной, у прогулочной дорожки.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Qudyqshylar Sculpture",
+        "summary": "Monument to the water-seekers of Mangystau.",
+        "description": "The composition recalls the value of water in the desert land. It stands mid-promenade by the walking path.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 5,
+    "category": "culture",
+    "lat": 43.662236,
+    "lng": 51.132432,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "«Түйе мінген хан» мүсіні",
+        "summary": "Көшпелі дәуірге арналған түйелі салт атты.",
+        "description": "Қазақ даласының көшпелі тарихын бейнелейтін мүсін. Теңіз жағасында, амфитеатрдан солтүстікке қарай орналасқан.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Скульптура «Хан на верблюде»",
+        "summary": "Всадник на верблюде — символ кочевой эпохи.",
+        "description": "Скульптура о кочевой истории казахской степи. Стоит у моря, к северу от амфитеатра.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Khan on a Camel Sculpture",
+        "summary": "Camel rider — a symbol of the nomadic era.",
+        "description": "A sculpture about the nomadic history of the Kazakh steppe. Located by the sea, north of the amphitheater.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "category": "culture",
+    "lat": 43.664791,
+    "lng": 51.132468,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "«Кобра» мүсіні",
+        "summary": "Жағалаудағы заманауи арт-объект.",
+        "description": "Серуен жолы бойындағы қола кобра. Балалар суретке түскенді жақсы көреді, кешке жарықпен әдемі көрінеді.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Скульптура «Кобра»",
+        "summary": "Современный арт-объект на набережной.",
+        "description": "Бронзовая кобра вдоль прогулочного маршрута. Дети любят с ней фотографироваться, вечером красиво подсвечена.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Cobra Sculpture",
+        "summary": "Modern art object on the waterfront.",
+        "description": "A bronze cobra along the walking route. Kids love photos with it; nicely lit in the evening.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 7,
+    "category": "culture",
+    "lat": 43.665396,
+    "lng": 51.132105,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "«Қасқыр мінген бала» мүсіні",
+        "summary": "Ертегі кейіпкері — бала мен қасқыр.",
+        "description": "Жағалаудың солтүстік бөлігіндегі ертегі мүсіні. Отбасылық фотоға жақсы фон.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Скульптура «Ребёнок на волке»",
+        "summary": "Сказочный персонаж — мальчик на волке.",
+        "description": "Сказочная скульптура в северной части набережной. Хороший фон для семейных фото.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Child on a Wolf Sculpture",
+        "summary": "Fairytale character — a boy riding a wolf.",
+        "description": "A fairytale sculpture in the northern part of the promenade. A nice backdrop for family photos.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 8,
+    "category": "culture",
+    "lat": 43.656153,
+    "lng": 51.147971,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "Ту тұғыры",
+        "summary": "Жағалау ауданының биік бағдары — алыстан көрінеді.",
+        "description": "Биік ту тұғыры серуен аймағына бағдар болады. Кешке ту жарықтандырылады.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Флагшток",
+        "summary": "Высокий ориентир района — видно издалека.",
+        "description": "Высокий флагшток служит ориентиром прогулочной зоны. Вечером флаг подсвечен.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Flagpole",
+        "summary": "Tall landmark of the district — visible from afar.",
+        "description": "The tall flagpole is a landmark of the walking area. The flag is lit in the evening.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 9,
+    "category": "park",
+    "lat": 43.66546,
+    "lng": 51.141331,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "Балалар алаңы",
+        "summary": "Жағалау маңындағы ашық ойын алаңы.",
+        "description": "Әткеншектер мен сырғанақтар бар қауіпсіз алаң. Кешке жарық жанады, жақын жерде орындықтар бар.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Детская площадка",
+        "summary": "Открытая игровая зона у набережной.",
+        "description": "Безопасная площадка с качелями и горками. Вечером освещена, рядом скамейки.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Children's Playground",
+        "summary": "Outdoor play area by the waterfront.",
+        "description": "Safe playground with swings and slides. Lit in the evening, benches nearby.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "category": "park",
+    "lat": 43.656405,
+    "lng": 51.139441,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "walk",
+    "texts": {
+      "kk": {
+        "name": "Жағалау маңындағы ойын орны",
+        "summary": "Демалысқа арналған шағын жасыл бұрыш.",
+        "description": "Серуен жолына жақын тыныш орын. Жүгіруден кейін демалуға немесе балалармен отыруға ыңғайлы.",
+        "address": "Ақтау, 15-шағынаудан жағалауы"
+      },
+      "ru": {
+        "name": "Игровая зона у набережной",
+        "summary": "Небольшой зелёный уголок для отдыха.",
+        "description": "Тихое место рядом с променадом. Удобно передохнуть после пробежки или посидеть с детьми.",
+        "address": "Актау, набережная 15-го микрорайона"
+      },
+      "en": {
+        "name": "Waterfront Play Area",
+        "summary": "Small green corner to rest.",
+        "description": "A quiet spot next to the promenade. Good to rest after jogging or sit with kids.",
+        "address": "Aktau, 15th microdistrict waterfront"
+      }
+    }
+  },
+  {
+    "id": 101,
+    "category": "history",
+    "lat": 44.5106,
+    "lng": 50.2633,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": {"open": "09:00", "close": "18:00", "days": [1, 2, 3, 4, 5, 6, 7], "tz": "Asia/Aqtau"},
+    "access": "transit",
+    "texts": {
+      "kk": {
+        "name": "Форт-Шевченко",
+        "summary": "Каспийдегі тарихи қала — Шевченко сүргінде болған жер.",
+        "description": "1840-жылдары қамал ретінде салынған қала. Мұнда Тарас Шевченко айдауда болды, мұражайы бар. Ақтаудан ~120 км, көлікпен бару керек.",
+        "address": "Форт-Шевченко, Маңғыстау"
+      },
+      "ru": {
+        "name": "Форт-Шевченко",
+        "summary": "Исторический город на Каспии — место ссылки Шевченко.",
+        "description": "Город основан в 1840-х как крепость. Здесь отбывал ссылку Тарас Шевченко, есть его музей. От Актау ~120 км, ехать на машине.",
+        "address": "Форт-Шевченко, Мангыстау"
+      },
+      "en": {
+        "name": "Fort Shevchenko",
+        "summary": "Historic Caspian town — Shevchenko's place of exile.",
+        "description": "Founded in the 1840s as a fortress. Taras Shevchenko served his exile here; his museum is open. ~120 km from Aktau, reachable by car.",
+        "address": "Fort Shevchenko, Mangystau"
+      }
+    },
+    "scene": {
+      "modern_url": "/static/scenes/101/modern.jpg",
+      "historic_url": "/static/scenes/101/historic.jpg",
+      "attribution": "художественная реконструкция",
+      "texts": {
+        "kk": {"title": "Бұрын және қазір", "body": "Бекініс 1846 жылы салынған. Бұрын әскери форт болды, қазір — тыныш балықшы қаласы мен мұражай."},
+        "ru": {"title": "Тогда и сейчас", "body": "Крепость построена в 1846 году. Бывший военный форт, теперь — тихий рыбацкий город и музей."},
+        "en": {"title": "Then and Now", "body": "The fortress was built in 1846. A former military fort, now a quiet fishing town with a museum."}
+      },
+      "sources": ["https://www.gov.kz/memleket/entities/mangystau?lang=ru"]
+    }
+  },
+  {
+    "id": 102,
+    "category": "nature",
+    "lat": 43.4167,
+    "lng": 54.0667,
+    "thumb_url": "/static/places/placeholder.svg",
+    "photos": ["/static/places/placeholder.svg"],
+    "hours": null,
+    "access": "transit",
+    "texts": {
+      "kk": {
+        "name": "Божыра шатқалы",
+        "summary": "Марс пейзажындай ақ бор таулары — Маңғыстау символы.",
+        "description": "Ақтаудан ~250 км жердегі әйгілі шатқал. Тек жол талғамайтын көлікпен және гидпен барыңыз, су мен жанармай алыңыз. Күн батқанда ең әдемі.",
+        "address": "Маңғыстау, Божыра"
+      },
+      "ru": {
+        "name": "Урочище Божыра",
+        "summary": "Белые меловые горы как пейзаж Марса — символ Мангыстау.",
+        "description": "Знаменитое урочище ~250 км от Актау. Ехать только на внедорожнике и с гидом, взять воду и топливо. Красивее всего на закате.",
+        "address": "Мангыстау, Божыра"
+      },
+      "en": {
+        "name": "Bozjyra Tract",
+        "summary": "White chalk mountains like Mars — the symbol of Mangystau.",
+        "description": "Famous tract ~250 km from Aktau. Go only by 4x4 with a guide, take water and fuel. Most beautiful at sunset.",
+        "address": "Mangystau, Bozjyra"
+      }
+    },
+    "scene": {
+      "modern_url": "/static/scenes/102/modern.jpg",
+      "historic_url": "/static/scenes/102/historic.jpg",
+      "attribution": "художественная реконструкция",
+      "texts": {
+        "kk": {"title": "Бұрын және қазір", "body": "Миллиондаған жыл бұрын мұнда теңіз болды. Бор жартастар — ежелгі түбінің қалдығы."},
+        "ru": {"title": "Тогда и сейчас", "body": "Миллионы лет назад здесь было море. Меловые скалы — остатки древнего дна."},
+        "en": {"title": "Then and Now", "body": "Millions of years ago there was a sea here. The chalk cliffs are remains of the ancient seabed."}
+      },
+      "sources": ["https://www.gov.kz/memleket/entities/mangystau?lang=ru"]
+    }
+  }
+]
