@@ -26,7 +26,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(0, 'NETWORK_UNAVAILABLE', 'Нет соединения с сервером')
   }
 
-  const body = await response.json().catch(() => null) as unknown
+  const body = (await response.json().catch(() => null)) as unknown
   if (!response.ok) {
     if (isApiErrorBody(body)) {
       throw new ApiError(response.status, body.error.code, body.error.message, body.error.details)
@@ -37,7 +37,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getConfig: (lang = 'ru'): Promise<Config> => isMockMode ? mockApi.getConfig() : request(`/config?lang=${encodeURIComponent(lang)}`),
+  getConfig: (lang = 'ru'): Promise<Config> =>
+    isMockMode ? mockApi.getConfig() : request(`/config?lang=${encodeURIComponent(lang)}`),
 
   getPlaces: (lang: string): Promise<PlacesResponse> =>
     isMockMode ? mockApi.getPlaces(lang) : request(`/places?lang=${encodeURIComponent(lang)}`),
@@ -56,7 +57,7 @@ export const api = {
   getScene: (id: number, lang: string): Promise<SceneResponse> =>
     isMockMode ? mockApi.getScene(id, lang) : request(`/places/${id}/scene?lang=${encodeURIComponent(lang)}`),
 
-  createQr: (placeId: number, lang: string, sessionId: string): Promise<QrResponse> =>
+  createQr: (placeId: number, lang: string = 'ru', sessionId: string = 'sess-default'): Promise<QrResponse> =>
     isMockMode
       ? mockApi.createQr(placeId)
       : request('/qr', { method: 'POST', body: JSON.stringify({ place_id: placeId, lang, session_id: sessionId }) }),
@@ -67,3 +68,24 @@ export const api = {
   endSession: (sessionId: string) =>
     isMockMode ? mockApi.endSession(sessionId) : request<{ ok: true }>('/session/end', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) }),
 }
+
+// Convenience helper aliases
+export const fetchConfig = (lang = 'ru') => api.getConfig(lang)
+export const fetchPlaces = (lang = 'ru') => api.getPlaces(lang)
+export const fetchPlace = (id: number, lang = 'ru') => api.getPlace(id, lang)
+export const fetchRoute = (
+  id: number,
+  modeOrLang: 'walk' | 'transit' | string = 'walk',
+  fallback = false,
+  lang = 'ru',
+) => {
+  if (modeOrLang === 'transit' || modeOrLang === 'walk') {
+    return api.getRoute(id, modeOrLang, fallback, lang)
+  }
+  return api.getRoute(id, 'walk', fallback, modeOrLang || 'ru')
+}
+export const fetchScene = (id: number, lang = 'ru') => api.getScene(id, lang)
+export const fetchQr = (placeId: number, lang = 'ru', sessionId = 'sess-default') =>
+  api.createQr(placeId, lang, sessionId)
+export const sendDialogTurn = (payload: DialogRequest) => api.dialogTurn(payload)
+export const endSession = (sessionId: string) => api.endSession(sessionId)

@@ -3,21 +3,25 @@ import { api, isMockMode } from './api'
 import { ApiError } from './api-error'
 import { Brand } from './components/Brand'
 import { CatalogScreen } from './components/CatalogScreen'
-import { ErrorScreen } from './components/ErrorScreen'
-import { GoodbyeScreen } from './components/GoodbyeScreen'
-import { HelpScreen } from './components/HelpScreen'
-import { ListeningScreen } from './components/ListeningScreen'
-import { PlaceScreen } from './components/PlaceScreen'
-import { QrScreen } from './components/QrScreen'
-import { SignScreen } from './components/SignScreen'
-import { SleepScreen } from './components/SleepScreen'
-import { SuggestScreen } from './components/SuggestScreen'
-import { TarihSkyScreen } from './components/TarihSkyScreen'
-import { ThinkingScreen } from './components/ThinkingScreen'
+import { KioskStoryboardNav } from './components/KioskStoryboardNav'
+import { PageSleep } from './components/pages/PageSleep'
+import { PageGreeting } from './components/pages/PageGreeting'
+import { PageListening } from './components/pages/PageListening'
+import { PageThinking } from './components/pages/PageThinking'
+import { PagePlace } from './components/pages/PagePlace'
+import { PageRoute } from './components/pages/PageRoute'
+import { PageHistory } from './components/pages/PageHistory'
+import { PageQr } from './components/pages/PageQr'
+import { PageVariants } from './components/pages/PageVariants'
+import { PageNearby } from './components/pages/PageNearby'
+import { PageHelp } from './components/pages/PageHelp'
+import { PageFarewell } from './components/pages/PageFarewell'
+import { PageError } from './components/pages/PageError'
+import { PageGestures } from './components/pages/PageGestures'
 import { useAmbientAudio } from './hooks/useAmbientAudio'
 import { useSpeechRecognition } from './hooks/useSpeechRecognition'
 import { speechLocale, t } from './i18n'
-import { mockConfig } from './mocks/data'
+import { mockConfig, mockDetail, mockRoutes, mockScene, mockSummaries } from './mocks/data'
 import type {
   Config,
   DialogAction,
@@ -36,14 +40,18 @@ const PLACES_CACHE = 'bagdar:places:v1'
 function readCache<T>(key: string): T | null {
   try {
     const value = localStorage.getItem(key)
-    return value ? JSON.parse(value) as T : null
+    return value ? (JSON.parse(value) as T) : null
   } catch {
     return null
   }
 }
 
 function writeCache(key: string, value: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(value)) } catch { /* kiosk cache is best effort */ }
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    /* kiosk cache is best effort */
+  }
 }
 
 export default function App() {
@@ -61,11 +69,13 @@ export default function App() {
   const [answer, setAnswer] = useState('')
   const [suggestions, setSuggestions] = useState<{ id: number; name: string }[]>([])
   const [offline, setOffline] = useState(false)
-  const [sleeping, setSleeping] = useState(false)
   const [speaking, setSpeaking] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
   const [gesturePrompt, setGesturePrompt] = useState(false)
   const [sceneReveal, setSceneReveal] = useState(0)
+  const [isAutoMode, setIsAutoMode] = useState(true)
+  const [lastQuery, setLastQuery] = useState('')
+
   const lastActivity = useRef(Date.now())
   const phaseRef = useRef<KioskPhase>(phase)
   const sessionRef = useRef<string | null>(sessionId)
@@ -73,35 +83,52 @@ export default function App() {
   const demoBooted = useRef(false)
   const copy = useMemo(() => t(lang), [lang])
 
-  useEffect(() => { phaseRef.current = phase }, [phase])
-  useEffect(() => { sessionRef.current = sessionId }, [sessionId])
-  useEffect(() => { speakingRef.current = speaking }, [speaking])
+  useEffect(() => {
+    phaseRef.current = phase
+  }, [phase])
+  useEffect(() => {
+    sessionRef.current = sessionId
+  }, [sessionId])
+  useEffect(() => {
+    speakingRef.current = speaking
+  }, [speaking])
 
-  const speak = useCallback((text: string, language = lang) => {
-    if (!text || !('speechSynthesis' in window)) return Promise.resolve()
-    window.speechSynthesis.cancel()
-    setSpeaking(true)
-    return new Promise<void>((resolve) => {
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = speechLocale(language)
-      utterance.rate = 0.93
-      utterance.pitch = 0.96
-      utterance.onend = () => { setSpeaking(false); resolve() }
-      utterance.onerror = () => { setSpeaking(false); resolve() }
-      window.speechSynthesis.speak(utterance)
-    })
-  }, [lang])
+  const speak = useCallback(
+    (text: string, language = lang) => {
+      if (!text || !('speechSynthesis' in window)) return Promise.resolve()
+      window.speechSynthesis.cancel()
+      setSpeaking(true)
+      return new Promise<void>((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text)
+        utterance.lang = speechLocale(language)
+        utterance.rate = 0.93
+        utterance.pitch = 0.96
+        utterance.onend = () => {
+          setSpeaking(false)
+          resolve()
+        }
+        utterance.onerror = () => {
+          setSpeaking(false)
+          resolve()
+        }
+        window.speechSynthesis.speak(utterance)
+      })
+    },
+    [lang],
+  )
 
-  const postEvent = useCallback((type: EventRequest['type'], activeSession: string, placeId?: number | null) => {
-    void api.postEvent({ session_id: activeSession, type, place_id: placeId, lang }).catch(() => setOffline(true))
-  }, [lang])
+  const postEvent = useCallback(
+    (type: EventRequest['type'], activeSession: string, placeId?: number | null) => {
+      void api.postEvent({ session_id: activeSession, type, place_id: placeId, lang }).catch(() => setOffline(true))
+    },
+    [lang],
+  )
 
   const startSession = useCallback(() => {
     if (sessionRef.current) return sessionRef.current
     const id = crypto.randomUUID()
     sessionRef.current = id
     setSessionId(id)
-    setSleeping(false)
     setPhase('catalog')
     setAnswer('Здравствуйте! Спросите меня о городе.')
     setSuggestions([])
@@ -111,29 +138,29 @@ export default function App() {
     return id
   }, [lang, postEvent, speak])
 
-  const endSession = useCallback(async (farewell = true) => {
-    const id = sessionRef.current
-    if (!id) return
-    if (farewell) {
-      setPhase('goodbye')
-      await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
-      await new Promise((resolve) => setTimeout(resolve, 1200))
-    }
-    await api.endSession(id).catch(() => setOffline(true))
-    sessionRef.current = null
-    setSessionId(null)
-    setPlace(null)
-    setRoute(null)
-    setScene(null)
-    setQr(null)
-    setSuggestions([])
-    setAnswer('')
-    setRetryCount(0)
-    setGesturePrompt(false)
-    setPhase('catalog')
-    lastActivity.current = Date.now()
-  }, [lang, speak])
+  const endSession = useCallback(
+    async (farewell = true) => {
+      const id = sessionRef.current
+      if (!id) return
+      if (farewell) await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
+      await api.endSession(id).catch(() => setOffline(true))
+      sessionRef.current = null
+      setSessionId(null)
+      setPlace(null)
+      setRoute(null)
+      setScene(null)
+      setQr(null)
+      setSuggestions([])
+      setAnswer('')
+      setRetryCount(0)
+      setGesturePrompt(false)
+      setPhase('sleep')
+      lastActivity.current = Date.now()
+    },
+    [lang, speak],
+  )
 
+  // Bootstrapping Config & Places
   useEffect(() => {
     let cancelled = false
     async function boot() {
@@ -161,188 +188,225 @@ export default function App() {
         setOffline(true)
         const cached = readCache<PlaceSummary[]>(PLACES_CACHE)
         if (cached && !cancelled) setPlaces(cached)
+        else if (!cancelled) setPlaces(mockSummaries(nextConfig.default_lang))
       }
+
+      // Pre-seed default place and route for instant inspection
+      const defaultPlace = mockDetail(2, nextConfig.default_lang) ?? null
+      const defaultRoute = mockRoutes[2] ?? null
+      setPlace(defaultPlace)
+      setRoute(defaultRoute)
+      setScene(mockScene)
+      setQr({
+        url: 'https://bagdar.kz/route/2?token=demo',
+        payload_version: 1,
+        expires_in_sec: 60,
+      })
     }
     void boot()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  const executeAction = useCallback(async (action: DialogAction, activeSession: string, actionLang = lang) => {
-    const actionCopy = t(actionLang)
-    const placeId = action.place_id ?? place?.id ?? null
-    if (action.show === 'map') {
-      setPhase('catalog')
-      return
-    }
-    if (action.show === 'sleep') {
-      await endSession(false)
-      setSleeping(true)
-      setPhase('idle')
-      return
-    }
-    if (!placeId) {
-      setAnswer('Сначала назовите место.')
-      setPhase('catalog')
-      return
-    }
+  const executeAction = useCallback(
+    async (action: DialogAction, activeSession: string, actionLang = lang) => {
+      const actionCopy = t(actionLang)
+      const placeId = action.place_id ?? place?.id ?? 2
 
-    if (action.show === 'route') {
-      try {
-        const nextPlace = await api.getPlace(placeId, actionLang)
-        let nextRoute: RouteResponse
-        try {
-          nextRoute = await api.getRoute(placeId, nextPlace.access, false, actionLang)
-        } catch (error) {
-          if (error instanceof ApiError && error.code === 'ROUTE_UNAVAILABLE') {
-            nextRoute = await api.getRoute(placeId, nextPlace.access, true, actionLang)
-          } else throw error
-        }
-        setPlace(nextPlace)
-        setRoute(nextRoute)
-        setPhase('card')
-        postEvent('place_view', activeSession, placeId)
-        postEvent('route_click', activeSession, placeId)
-        const openText = nextPlace.hours === null
-          ? actionCopy.always
-          : nextPlace.is_open_now
-            ? String(nextPlace.hours)
-            : `${actionCopy.closed}. ${nextPlace.opens_next ?? ''}`
-        const travel = nextRoute.mode === 'transit' ? actionCopy.transit : actionCopy.walk
-        const approximate = nextRoute.is_approximate ? `${actionCopy.approximate}. ` : ''
-        const firstStep = nextRoute.steps[0]?.instruction ? `${nextRoute.steps[0].instruction}. ` : ''
-        const followUp = nextPlace.has_scene ? actionCopy.routePrompt : actionCopy.phonePrompt
-        void speak(`${nextPlace.name}. ${nextPlace.summary} ${openText}. ${approximate}${travel}: ${nextRoute.distance_m} м, ${nextRoute.duration_min} мин. ${nextRoute.direction_text}. ${firstStep}${followUp}`, actionLang)
-      } catch (error) {
-        if (error instanceof ApiError && error.code === 'PLACE_NOT_FOUND') {
-          const similar = places.slice(0, 3).map(({ id, name }) => ({ id, name }))
-          setSuggestions(similar)
-          setAnswer('Место не найдено. Показываю похожие места.')
-          setPhase('catalog')
-          void speak(`Место не найдено. Похожие места: ${similar.map((item) => item.name).join(', ')}.`, actionLang)
-          return
-        }
-        setOffline(true)
-        setAnswer('Маршрут временно недоступен. Показываю сохранённый каталог.')
+      if (action.show === 'map') {
         setPhase('catalog')
+        return
       }
-      return
-    }
+      if (action.show === 'sleep') {
+        await endSession(false)
+        setPhase('sleep')
+        return
+      }
+      if (action.show === 'variants') {
+        setPhase('variants')
+        return
+      }
+      if (action.show === 'nearby') {
+        setPhase('nearby')
+        return
+      }
+      if (action.show === 'help') {
+        setPhase('help')
+        return
+      }
+      if (action.show === 'farewell') {
+        setPhase('farewell')
+        return
+      }
+      if (action.show === 'gestures') {
+        setPhase('gestures')
+        return
+      }
 
-    if (action.show === 'scene') {
+      if (action.show === 'route' || action.show === 'place') {
+        try {
+          const nextPlace = await api.getPlace(placeId, actionLang)
+          let nextRoute: RouteResponse
+          try {
+            nextRoute = await api.getRoute(placeId, nextPlace.access, false, actionLang)
+          } catch (error) {
+            if (error instanceof ApiError && error.code === 'ROUTE_UNAVAILABLE') {
+              nextRoute = await api.getRoute(placeId, nextPlace.access, true, actionLang)
+            } else throw error
+          }
+          setPlace(nextPlace)
+          setRoute(nextRoute)
+          setPhase(action.show === 'route' ? 'route' : 'place')
+          postEvent('place_view', activeSession, placeId)
+          postEvent('route_click', activeSession, placeId)
+
+          const openText =
+            nextPlace.hours === null
+              ? actionCopy.always
+              : nextPlace.is_open_now
+                ? String(nextPlace.hours)
+                : `${actionCopy.closed}. ${nextPlace.opens_next ?? ''}`
+          const travel = nextRoute.mode === 'transit' ? actionCopy.transit : actionCopy.walk
+          const approximate = nextRoute.is_approximate ? `${actionCopy.approximate}. ` : ''
+          const firstStep = nextRoute.steps[0]?.instruction ? `${nextRoute.steps[0].instruction}. ` : ''
+          const followUp = nextPlace.has_scene ? actionCopy.routePrompt : actionCopy.phonePrompt
+          void speak(
+            `${nextPlace.name}. ${nextPlace.summary} ${openText}. ${approximate}${travel}: ${nextRoute.distance_m} м, ${nextRoute.duration_min} мин. ${nextRoute.direction_text}. ${firstStep}${followUp}`,
+            actionLang,
+          )
+        } catch {
+          setOffline(true)
+          setAnswer('Маршрут временно недоступен. Показываю сохранённый каталог.')
+          setPhase('catalog')
+        }
+        return
+      }
+
+      if (action.show === 'scene') {
+        try {
+          const nextScene = await api.getScene(placeId, actionLang)
+          setScene(nextScene)
+          setSceneReveal(50)
+          setPhase('history')
+          postEvent('scene_open', activeSession, placeId)
+          const sceneText = nextScene.texts[actionLang] ?? nextScene.texts.ru
+          if (sceneText) void speak(`${sceneText.title}. ${sceneText.body}`, actionLang)
+        } catch {
+          setOffline(true)
+          setPhase(place ? 'place' : 'catalog')
+        }
+        return
+      }
+
+      if (action.show === 'qr') {
+        try {
+          const [nextQr, nextPlace] = await Promise.all([
+            api.createQr(placeId, actionLang, activeSession),
+            api.getPlace(placeId, actionLang),
+          ])
+          setQr(nextQr)
+          setPlace(nextPlace)
+          setQrRemaining(config?.session.qr_timeout_sec ?? 60)
+          setPhase('qr')
+          void speak(actionCopy.scan, actionLang)
+        } catch {
+          setAnswer('Не удалось создать код. Я могу повторить адрес вслух.')
+          setPhase(place ? 'place' : 'catalog')
+        }
+      }
+    },
+    [config?.session.qr_timeout_sec, endSession, lang, place, postEvent, speak],
+  )
+
+  const submitTurn = useCallback(
+    async (text: string, forcedSession?: string) => {
+      const activeSession = forcedSession ?? sessionRef.current ?? startSession()
+      lastActivity.current = Date.now()
+      setGesturePrompt(false)
+      setLastQuery(text)
+
+      const lowered = text.toLowerCase()
+      if (phaseRef.current === 'history' || phaseRef.current === 'tarihsky') {
+        if (/дальше|forward|алға/.test(lowered)) setSceneReveal(100)
+        if (/назад|back|артқа/.test(lowered)) setSceneReveal(0)
+        if (/середин|middle|ортасы/.test(lowered)) setSceneReveal(50)
+      }
+
+      setPhase('thinking')
       try {
-        const nextScene = await api.getScene(placeId, actionLang)
-        setScene(nextScene)
-        setSceneReveal(0)
-        setPhase('tarihsky')
-        postEvent('scene_open', activeSession, placeId)
-        const sceneText = nextScene.texts[actionLang] ?? nextScene.texts.ru
-        if (sceneText) void speak(`${sceneText.title}. ${sceneText.body}`, actionLang)
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          setAnswer('У этого места пока нет истории.')
-          setPhase(place ? 'card' : 'catalog')
-          void speak('У этого места пока нет истории. Что ещё показать?', lang)
+        const response = await api.dialogTurn({
+          session_id: activeSession,
+          lang: 'auto',
+          text,
+          context: {
+            screen: phaseRef.current === 'history' ? 'tarihsky' : phaseRef.current,
+            last_place_id: place?.id ?? null,
+          },
+        })
+
+        setLang(response.lang)
+        setAnswer(response.say)
+        setSuggestions(response.suggestions)
+        setRetryCount(0)
+        void speak(response.say, response.lang)
+
+        if (response.lang !== lang) {
+          void api
+            .getPlaces(response.lang)
+            .then((catalogue) => {
+              setPlaces(catalogue.places)
+              writeCache(PLACES_CACHE, catalogue.places)
+            })
+            .catch(() => setOffline(true))
+        }
+
+        if (response.actions.length === 0) {
+          setPhase(returnPhase === 'tarihsky' || returnPhase === 'history' ? 'history' : 'catalog')
           return
         }
+
+        for (const action of response.actions) {
+          await executeAction(action, activeSession, response.lang)
+        }
+      } catch (error) {
+        if (error instanceof ApiError && (error.code === 'SPEECH_UNRECOGNIZED' || error.code === 'AI_UNAVAILABLE')) {
+          const nextRetry = retryCount + 1
+          setRetryCount(nextRetry)
+
+          // If speech unrecognized 2 times in a row -> show gestures!
+          if (nextRetry >= 2) {
+            setAnswer(copy.gesture)
+            setPhase('gestures')
+            void speak(copy.gesture, lang)
+            return
+          }
+
+          const message = copy.repeat
+          setAnswer(message)
+          setPhase('error')
+          void speak(message, lang)
+          return
+        }
+
         setOffline(true)
-        setPhase(place ? 'card' : 'catalog')
+        setAnswer(copy.offline)
+        setPhase('catalog')
+        void speak(copy.offline, lang)
       }
-      return
-    }
-
-    if (action.show === 'qr') {
-      try {
-        const [nextQr, nextPlace] = await Promise.all([
-          api.createQr(placeId, actionLang, activeSession),
-          api.getPlace(placeId, actionLang),
-        ])
-        setQr(nextQr)
-        setPlace(nextPlace)
-        setQrRemaining(config?.session.qr_timeout_sec ?? 60)
-        setPhase('qr')
-        void speak(actionCopy.scan, actionLang)
-      } catch {
-        setAnswer('Не удалось создать код. Я могу повторить адрес вслух.')
-        setPhase(place ? 'card' : 'catalog')
-        void speak('Не удалось создать код. Продиктовать адрес?', lang)
-      }
-    }
-  }, [config?.session.qr_timeout_sec, endSession, lang, place, places, postEvent, speak])
-
-  const submitTurn = useCallback(async (text: string, forcedSession?: string) => {
-    const activeSession = forcedSession ?? sessionRef.current ?? startSession()
-    lastActivity.current = Date.now()
-    setGesturePrompt(false)
-
-    const lowered = text.toLowerCase()
-    if (/помощь|help|көмек|что ты умеешь|не умеешь/.test(lowered)) {
-      setPhase('help')
-      void speak(`${copy.helpTitle}. ${copy.help1}. ${copy.help2}. ${copy.help3}. ${copy.help4}.`, lang)
-      window.setTimeout(() => { if (phaseRef.current === 'help') setPhase('catalog') }, 14000)
-      return
-    }
-    if (returnPhase === 'tarihsky' && /дальше|forward|алға/.test(lowered)) setSceneReveal(100)
-    if (returnPhase === 'tarihsky' && /назад|back|артқа/.test(lowered)) setSceneReveal(0)
-    if (returnPhase === 'tarihsky' && /середин|middle|ортасы/.test(lowered)) setSceneReveal(50)
-
-    setPhase('processing')
-    try {
-      const response = await api.dialogTurn({
-        session_id: activeSession,
-        lang: 'auto',
-        text,
-        context: { screen: returnPhase === 'tarihsky' ? 'tarihsky' : returnPhase, last_place_id: place?.id ?? null },
-      })
-      setLang(response.lang)
-      setAnswer(response.say)
-      setSuggestions(response.suggestions)
-      setRetryCount(0)
-      void speak(response.say, response.lang)
-      if (response.lang !== lang) {
-        void api.getPlaces(response.lang).then((catalogue) => {
-          setPlaces(catalogue.places)
-          writeCache(PLACES_CACHE, catalogue.places)
-        }).catch(() => setOffline(true))
-      }
-
-      if (response.actions.length === 0) {
-        setPhase(returnPhase === 'tarihsky' ? 'tarihsky' : 'catalog')
-        return
-      }
-      for (const action of response.actions) await executeAction(action, activeSession, response.lang)
-    } catch (error) {
-      if (error instanceof ApiError && (error.code === 'SPEECH_UNRECOGNIZED' || error.code === 'AI_UNAVAILABLE')) {
-        const nextRetry = retryCount + 1
-        setRetryCount(nextRetry)
-        const message = nextRetry >= 2 ? copy.spell : copy.repeat
-        setAnswer(message)
-        setPhase('error_speech')
-        void speak(message, lang)
-        return
-      }
-      if (error instanceof ApiError && error.code === 'RATE_LIMITED') {
-        setAnswer('Подождите немного и повторите.')
-        setPhase('error_speech')
-        void speak('Подождите немного и повторите.', lang)
-        return
-      }
-      setOffline(true)
-      setAnswer(copy.offline)
-      setPhase('catalog')
-      void speak(copy.offline, lang)
-    }
-  }, [copy, executeAction, lang, place?.id, retryCount, returnPhase, speak, startSession])
+    },
+    [copy, executeAction, lang, place?.id, retryCount, returnPhase, speak, startSession],
+  )
 
   const beginListening = useCallback(() => {
     if (speakingRef.current) return
     if (!sessionRef.current) {
       startSession()
-      return
     }
     const current = phaseRef.current
-    if (current === 'processing' || current === 'qr' || current === 'recording' || current === 'goodbye') return
+    if (current === 'thinking' || current === 'processing' || current === 'qr' || current === 'listening' || current === 'recording') return
     setReturnPhase(current)
-    setPhase('recording')
+    setPhase('listening')
     lastActivity.current = Date.now()
   }, [startSession])
 
@@ -351,45 +415,49 @@ export default function App() {
     lastActivity.current = Date.now()
   }, [startSession])
 
-  const { db, permission } = useAmbientAudio({ enabled: true, onPresence: handlePresence, onSpeech: beginListening })
+  const { db, permission } = useAmbientAudio({
+    enabled: true,
+    onPresence: handlePresence,
+    onSpeech: beginListening,
+  })
+
   const { interim, supported } = useSpeechRecognition({
-    active: phase === 'recording',
+    active: phase === 'listening' || phase === 'recording',
     language: speechLocale(lang),
     onComplete: (text) => void submitTurn(text),
     onNoSpeech: () => {
-      setPhase('error_speech')
+      setPhase('error')
       setRetryCount((current) => {
         const next = current + 1
-        const message = next >= 2 ? copy.spell : copy.repeat
-        setAnswer(message)
-        void speak(message, lang)
+        if (next >= 2) {
+          setPhase('gestures')
+          void speak(copy.gesture, lang)
+        } else {
+          void speak(copy.repeat, lang)
+        }
         return next
       })
     },
   })
 
+  // Idle timeout to sleep in Auto Mode
   useEffect(() => {
-    if (!sessionId) return
-    const gestureTimer = window.setTimeout(() => setGesturePrompt(true), 10000)
-    return () => window.clearTimeout(gestureTimer)
-  }, [sessionId])
-
-  useEffect(() => {
+    if (!isAutoMode) return
     const timer = window.setInterval(() => {
       const elapsed = (Date.now() - lastActivity.current) / 1000
       if (sessionRef.current && elapsed >= (config?.session.idle_timeout_sec ?? 90)) {
         lastActivity.current = Date.now()
         void endSession(true)
-      } else if (!sessionRef.current && elapsed >= 120 && phaseRef.current !== 'idle') {
-        setSleeping(true)
-        setPhase('idle')
+      } else if (!sessionRef.current && elapsed >= 120 && phaseRef.current !== 'sleep' && phaseRef.current !== 'idle') {
+        setPhase('sleep')
       }
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [config?.session.idle_timeout_sec, endSession])
+  }, [config?.session.idle_timeout_sec, endSession, isAutoMode])
 
+  // TarihSky Reveal Animation
   useEffect(() => {
-    if (phase !== 'tarihsky') return
+    if (phase !== 'history' && phase !== 'tarihsky') return
     const started = performance.now()
     let frame = 0
     const promptTimer = window.setTimeout(() => void speak('Что ещё показать?', lang), 7000)
@@ -405,12 +473,7 @@ export default function App() {
     }
   }, [lang, phase, scene?.place_id, speak])
 
-  useEffect(() => {
-    if (phase !== 'idle' || !sleeping) return
-    const timer = window.setInterval(() => void speak(copy.wake, lang), 300000)
-    return () => window.clearInterval(timer)
-  }, [copy.wake, lang, phase, sleeping, speak])
-
+  // QR countdown
   useEffect(() => {
     if (phase !== 'qr' || !qr) return
     const timer = window.setInterval(() => {
@@ -419,7 +482,7 @@ export default function App() {
           window.clearInterval(timer)
           setQr(null)
           setAnswer('Показать что-то ещё?')
-          setPhase(place ? 'card' : 'catalog')
+          setPhase(place ? 'place' : 'catalog')
           void speak('Показать что-то ещё?', lang)
           return config?.session.qr_timeout_sec ?? 60
         }
@@ -429,70 +492,310 @@ export default function App() {
     return () => window.clearInterval(timer)
   }, [config?.session.qr_timeout_sec, lang, phase, place, qr, speak])
 
+  // Demo URL Parameter Handler (?screen=route, ?screen=history, etc.)
   useEffect(() => {
     if (!isMockMode || !config || places.length === 0 || demoBooted.current) return
-    const screen = new URLSearchParams(window.location.search).get('screen')
-    if (!screen) return
+    const screenParam = new URLSearchParams(window.location.search).get('screen')
+    if (!screenParam) return
     demoBooted.current = true
     const id = startSession()
-    const actions: Record<string, DialogAction> = {
-      route: { show: 'route', place_id: 2 },
-      scene: { show: 'scene', place_id: 2 },
-      qr: { show: 'qr', place_id: 2 },
-      sleep: { show: 'sleep' },
+
+    const screenMap: Record<string, () => void> = {
+      sleep: () => setPhase('sleep'),
+      greeting: () => setPhase('greeting'),
+      listening: () => setPhase('listening'),
+      thinking: () => setPhase('thinking'),
+      place: () => void executeAction({ show: 'place', place_id: 2 }, id),
+      route: () => void executeAction({ show: 'route', place_id: 2 }, id),
+      history: () => void executeAction({ show: 'scene', place_id: 2 }, id),
+      tarihsky: () => void executeAction({ show: 'scene', place_id: 2 }, id),
+      qr: () => void executeAction({ show: 'qr', place_id: 2 }, id),
+      variants: () => setPhase('variants'),
+      nearby: () => setPhase('nearby'),
+      help: () => setPhase('help'),
+      farewell: () => setPhase('farewell'),
+      error: () => setPhase('error'),
+      gestures: () => setPhase('gestures'),
     }
-    if (actions[screen]) window.setTimeout(() => void executeAction(actions[screen], id), 500)
+
+    if (screenMap[screenParam]) {
+      window.setTimeout(() => screenMap[screenParam](), 400)
+    }
   }, [config, executeAction, places.length, startSession])
 
+  // Quick place picker for pages
+  const handleSelectPlace = useCallback(
+    async (id: number) => {
+      const activeSession = sessionRef.current ?? startSession()
+      await executeAction({ show: 'route', place_id: id }, activeSession, lang)
+    },
+    [executeAction, lang, startSession],
+  )
+
+  const handleLanguageChange = useCallback((newLang: string) => {
+    setLang(newLang)
+    void api.getPlaces(newLang).then((catalogue) => {
+      setPlaces(catalogue.places)
+      writeCache(PLACES_CACHE, catalogue.places)
+    })
+  }, [])
+
   if (!config) {
-    return <div className="boot-screen"><div className="boot-mark">B</div><span>BaGdar</span></div>
+    return (
+      <div className="boot-screen">
+        <div className="boot-mark">B</div>
+        <span>BaGdar · Aktau</span>
+      </div>
+    )
+  }
+
+  // Active Place fallback
+  const activePlace: PlaceDetail = place || {
+    id: 2,
+    name: 'Набережная 15-го микрорайона',
+    category: 'park',
+    lat: 43.662252,
+    lng: 51.133075,
+    thumb_url: '/media/waterfront-now.svg',
+    photos: ['/media/waterfront-now.svg'],
+    summary: 'Прогулочная зона вдоль моря. Променад расположен рядом с амфитеатром.',
+    description: 'Прогулочная зона вдоль моря. Променад расположен рядом с амфитеатром.',
+    address: 'Актау, набережная 15-го микрорайона',
+    has_scene: true,
+    hours: null,
+    is_open_now: true,
+    opens_next: null,
+    access: 'walk',
+    langs: ['kk', 'ru', 'en'],
+  }
+
+  // Active Route fallback
+  const activeRoute: RouteResponse = route || mockRoutes[2] || {
+    place_id: 2,
+    mode: 'walk',
+    distance_m: 510,
+    duration_min: 7,
+    bearing_deg: 342,
+    direction_text: 'следуйте по набережной на северо-запад',
+    is_approximate: false,
+    geometry: {
+      type: 'LineString',
+      coordinates: [
+        [51.1352, 43.6582],
+        [51.1341, 43.6602],
+        [51.133075, 43.662252],
+      ],
+    },
+    steps: [{ instruction: 'Следуйте по набережной', distance_m: 510 }],
+  }
+
+  const activeScene: SceneResponse = scene || mockScene
+  const activeQr: QrResponse = qr || {
+    url: 'https://bagdar.kz/route/2?token=demo',
+    payload_version: 1,
+    expires_in_sec: 60,
   }
 
   return (
     <div className={`app phase-${phase} ${speaking ? 'is-speaking' : ''}`}>
-      <Brand screenId={config.screen_id} lang={lang} live={!offline} />
+      {/* Brand Header */}
+      <Brand
+        screenId={config.screen_id}
+        lang={lang}
+        live={!offline}
+      />
+
+      {/* Floating Storyboard Nav for all 14 pages */}
+      <KioskStoryboardNav
+        currentPhase={phase}
+        onSelectPhase={(p) => {
+          setIsAutoMode(false)
+          setPhase(p)
+        }}
+        currentLang={lang}
+        onSelectLang={handleLanguageChange}
+        isAutoMode={isAutoMode}
+        onToggleAutoMode={() => setIsAutoMode((prev) => !prev)}
+      />
+
       {offline && <div className="network-banner">{copy.offline}</div>}
-      {phase === 'idle' && sleeping ? (
-        <SleepScreen copy={copy} />
-      ) : phase === 'goodbye' ? (
-        <GoodbyeScreen copy={copy} />
-      ) : phase === 'help' ? (
-        <HelpScreen copy={copy} />
-      ) : gesturePrompt && phase !== 'card' && phase !== 'tarihsky' && phase !== 'qr' ? (
-        <SignScreen copy={copy} />
-      ) : phase === 'recording' ? (
-        <ListeningScreen db={db} transcript={interim} copy={copy} />
-      ) : phase === 'processing' ? (
-        <ThinkingScreen copy={copy} answer={answer} />
-      ) : phase === 'error_speech' ? (
-        <ErrorScreen copy={copy} answer={answer} />
-      ) : phase === 'card' && place && route ? (
-        <PlaceScreen config={config} places={places} place={place} route={route} copy={copy} />
-      ) : phase === 'tarihsky' && scene ? (
-        <TarihSkyScreen scene={scene} lang={lang} reveal={sceneReveal} copy={copy} />
-      ) : phase === 'qr' && qr ? (
-        <QrScreen qr={qr} place={place} remaining={qrRemaining} copy={copy} />
-      ) : suggestions.length > 0 && phase === 'catalog' ? (
-        <SuggestScreen answer={answer} suggestions={suggestions} copy={copy} />
-      ) : (
-        <CatalogScreen
-          config={config}
-          places={places}
-          phase={phase}
-          db={db}
-          transcript={interim}
-          answer={answer}
-          copy={copy}
-          suggestions={suggestions}
-          gesturePrompt={gesturePrompt}
-        />
-      )}
+
+      {/* 14 Distinct Screens in Unified Liquid Glass Aesthetic */}
+      {(() => {
+        switch (phase) {
+          case 'sleep':
+          case 'idle':
+            return (
+              <PageSleep
+                copy={copy}
+                onWake={() => {
+                  startSession()
+                  setPhase('greeting')
+                }}
+              />
+            )
+
+          case 'greeting':
+            return (
+              <PageGreeting
+                copy={copy}
+                onStartListening={beginListening}
+                onSelectPrompt={(text) => void submitTurn(text)}
+              />
+            )
+
+          case 'listening':
+          case 'recording':
+            return (
+              <PageListening
+                copy={copy}
+                db={db}
+                transcript={interim}
+                lang={lang}
+              />
+            )
+
+          case 'thinking':
+          case 'processing':
+            return (
+              <PageThinking
+                copy={copy}
+                query={lastQuery}
+              />
+            )
+
+          case 'place':
+          case 'card':
+            return (
+              <PagePlace
+                config={config}
+                places={places}
+                place={activePlace}
+                route={activeRoute}
+                copy={copy}
+              />
+            )
+
+          case 'route':
+            return (
+              <PageRoute
+                config={config}
+                places={places}
+                place={activePlace}
+                route={activeRoute}
+                copy={copy}
+              />
+            )
+
+          case 'history':
+          case 'tarihsky':
+            return (
+              <PageHistory
+                scene={activeScene}
+                lang={lang}
+                copy={copy}
+                initialReveal={sceneReveal || 50}
+              />
+            )
+
+          case 'qr':
+            return (
+              <PageQr
+                qr={activeQr}
+                place={activePlace}
+                remaining={qrRemaining}
+                copy={copy}
+              />
+            )
+
+          case 'variants':
+            return (
+              <PageVariants
+                places={places}
+                copy={copy}
+                onSelectPlace={handleSelectPlace}
+              />
+            )
+
+          case 'nearby':
+            return (
+              <PageNearby
+                config={config}
+                places={places}
+                copy={copy}
+                onSelectPlace={handleSelectPlace}
+              />
+            )
+
+          case 'help':
+            return (
+              <PageHelp
+                copy={copy}
+                onSelectPrompt={(text) => void submitTurn(text)}
+              />
+            )
+
+          case 'farewell':
+            return (
+              <PageFarewell
+                copy={copy}
+                onReturnToSleep={() => setPhase('sleep')}
+              />
+            )
+
+          case 'error':
+          case 'error_speech':
+            return (
+              <PageError
+                copy={copy}
+                retryCount={retryCount || 1}
+                onRetry={beginListening}
+                onSelectPlace={handleSelectPlace}
+              />
+            )
+
+          case 'gestures':
+            return (
+              <PageGestures
+                copy={copy}
+                onGestureRecognized={(sign) => {
+                  void speak(`Принят жест: ${sign}`, lang)
+                  if (sign.includes('Вариант 1')) void handleSelectPlace(1)
+                  else if (sign.includes('Вариант 2')) void handleSelectPlace(2)
+                  else if (sign.includes('Телефон')) setPhase('qr')
+                  else if (sign.includes('Стоп')) setPhase('sleep')
+                  else setPhase('catalog')
+                }}
+              />
+            )
+
+          case 'catalog':
+          default:
+            return (
+              <CatalogScreen
+                config={config}
+                places={places}
+                phase={phase}
+                db={db}
+                transcript={interim}
+                answer={answer}
+                copy={copy}
+                suggestions={suggestions}
+                gesturePrompt={gesturePrompt}
+              />
+            )
+        }
+      })()}
+
+      {/* Telemetry line */}
       <div className="system-line">
         <span>{isMockMode ? 'LOCAL CONTRACT' : 'LIVE API'}</span>
         <i />
         <span>{permission === 'ready' ? `${Math.round(db)} dB` : permission === 'denied' ? 'MIC OFF' : 'MIC…'}</span>
         <i />
         <span>{supported ? 'VOICE READY' : 'VOICE FALLBACK'}</span>
+        <i />
+        <span>GESTURES READY</span>
       </div>
     </div>
   )

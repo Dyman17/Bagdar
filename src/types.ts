@@ -1,6 +1,23 @@
 export type Language = 'kk' | 'ru' | 'en' | string
 
+export type KioskPage =
+  | 'sleep'
+  | 'greeting'
+  | 'listening'
+  | 'thinking'
+  | 'place'
+  | 'route'
+  | 'history'
+  | 'qr'
+  | 'variants'
+  | 'nearby'
+  | 'help'
+  | 'farewell'
+  | 'error'
+  | 'gestures'
+
 export type KioskPhase =
+  | KioskPage
   | 'idle'
   | 'catalog'
   | 'card'
@@ -8,13 +25,16 @@ export type KioskPhase =
   | 'processing'
   | 'error_speech'
   | 'tarihsky'
-  | 'qr'
-  | 'help'
-  | 'goodbye'
+
+export interface KioskOrigin {
+  lat: number
+  lng: number
+  heading_deg: number
+}
 
 export interface Config {
   screen_id: string
-  origin: { lat: number; lng: number; heading_deg: number }
+  origin: KioskOrigin
   languages: string[]
   default_lang: string
   modes: { voice: boolean; tarihsky: boolean; qr: boolean; huskylens: boolean }
@@ -23,18 +43,36 @@ export interface Config {
   categories: string[]
 }
 
+export type KioskConfig = Config
+
+export interface PlaceTexts {
+  name: string
+  summary: string
+  description?: string
+  address?: string
+}
+
 export interface PlaceSummary {
   id: number
   name: string
   summary: string
+  description?: string
+  address?: string
   category: string
   lat: number
   lng: number
   thumb_url: string
+  photos?: string[]
   has_scene: boolean
   hours: string | null
   access: 'walk' | 'transit'
+  texts?: Record<string, PlaceTexts>
+  curatedBadge?: string
+  heroTag?: string
+  rating?: number
 }
+
+export type Place = PlaceSummary
 
 export interface PlacesResponse {
   places: PlaceSummary[]
@@ -78,7 +116,7 @@ export interface SceneResponse {
   sources: string[]
 }
 
-export type DialogShow = 'map' | 'route' | 'scene' | 'qr' | 'sleep'
+export type DialogShow = 'map' | 'place' | 'route' | 'scene' | 'qr' | 'sleep' | 'variants' | 'nearby' | 'help' | 'farewell' | 'error' | 'gestures'
 
 export interface DialogAction {
   show: DialogShow
