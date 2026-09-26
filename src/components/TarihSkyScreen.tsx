@@ -6,9 +6,10 @@ interface Props {
   lang: string
   reveal: number
   copy: Copy
+  onBack?: () => void
 }
 
-export function TarihSkyScreen({ scene, lang, reveal, copy }: Props) {
+export function TarihSkyScreen({ scene, lang, reveal, copy, onBack }: Props) {
   const text = scene.texts[lang] ?? scene.texts.ru ?? Object.values(scene.texts)[0]
   return (
     <main className="scene-screen screen-enter">
@@ -22,7 +23,19 @@ export function TarihSkyScreen({ scene, lang, reveal, copy }: Props) {
       <div className="scene-year scene-year-right"><span>{copy.now}</span><b>2026</b></div>
       <div className="scene-divider" style={{ left: `${reveal}%` }}><i /></div>
       <section className="scene-story glass-panel">
-        <span className="reconstruction-badge">TarihSky · {copy.reconstruction}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="reconstruction-badge">TarihSky · {copy.reconstruction}</span>
+          {onBack && (
+            <button
+              type="button"
+              className="kiosk-action-btn btn-back"
+              onClick={onBack}
+              style={{ padding: '6px 14px', fontSize: '10px' }}
+            >
+              ◀ Назад
+            </button>
+          )}
+        </div>
         <h1>{text.title}</h1>
         <p>{text.body}</p>
         <div className="scene-commands"><span>«назад»</span><span>«середина»</span><span>«дальше»</span></div>
@@ -30,3 +43,4 @@ export function TarihSkyScreen({ scene, lang, reveal, copy }: Props) {
     </main>
   )
 }
+

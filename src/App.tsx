@@ -524,7 +524,7 @@ export default function App() {
   const handleSelectPlace = useCallback(
     async (id: number) => {
       const activeSession = sessionRef.current ?? startSession()
-      await executeAction({ show: 'route', place_id: id }, activeSession, lang)
+      await executeAction({ show: 'place', place_id: id }, activeSession, lang)
     },
     [executeAction, lang, startSession],
   )
@@ -663,6 +663,14 @@ export default function App() {
                 place={activePlace}
                 route={activeRoute}
                 copy={copy}
+                onOpenRoute={() => setPhase('route')}
+                onOpenHistory={() => {
+                  void executeAction({ show: 'scene', place_id: activePlace.id }, sessionRef.current ?? startSession(), lang)
+                }}
+                onOpenQr={() => {
+                  void executeAction({ show: 'qr', place_id: activePlace.id }, sessionRef.current ?? startSession(), lang)
+                }}
+                onBack={() => setPhase('catalog')}
               />
             )
 
@@ -674,6 +682,10 @@ export default function App() {
                 place={activePlace}
                 route={activeRoute}
                 copy={copy}
+                onOpenQr={() => {
+                  void executeAction({ show: 'qr', place_id: activePlace.id }, sessionRef.current ?? startSession(), lang)
+                }}
+                onBack={() => setPhase('place')}
               />
             )
 
@@ -685,6 +697,7 @@ export default function App() {
                 lang={lang}
                 copy={copy}
                 initialReveal={sceneReveal || 50}
+                onBack={() => setPhase('place')}
               />
             )
 
@@ -695,6 +708,7 @@ export default function App() {
                 place={activePlace}
                 remaining={qrRemaining}
                 copy={copy}
+                onBack={() => setPhase('place')}
               />
             )
 
@@ -772,6 +786,7 @@ export default function App() {
                 copy={copy}
                 suggestions={suggestions}
                 gesturePrompt={gesturePrompt}
+                onSelectPlace={handleSelectPlace}
               />
             )
         }

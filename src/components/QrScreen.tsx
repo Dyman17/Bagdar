@@ -7,9 +7,10 @@ interface Props {
   place: PlaceDetail | null
   remaining: number
   copy: Copy
+  onBack?: () => void
 }
 
-export function QrScreen({ qr, place, remaining, copy }: Props) {
+export function QrScreen({ qr, place, remaining, copy, onBack }: Props) {
   return (
     <main className="qr-screen screen-enter">
       <div className="qr-ambient qr-ambient-one" />
@@ -19,7 +20,18 @@ export function QrScreen({ qr, place, remaining, copy }: Props) {
         <h1>{copy.scan}</h1>
         <p>{place?.name}</p>
         <div className="qr-countdown"><span style={{ '--remaining': remaining / 60 } as React.CSSProperties} /><b>{remaining}</b><small>сек</small></div>
+        {onBack && (
+          <button
+            type="button"
+            className="kiosk-action-btn btn-back"
+            onClick={onBack}
+            style={{ marginTop: '28px' }}
+          >
+            ◀ Назад
+          </button>
+        )}
       </section>
+
       <section className="qr-card glass-panel">
         <div className="qr-code-wrap">
           <QRCodeSVG value={qr.url} size={430} level="M" bgColor="transparent" fgColor="#102321" marginSize={2} />

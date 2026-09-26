@@ -1,84 +1,214 @@
 {
-  "area": "Waterfront near the 15th microdistrict amphitheater, Aktau",
-  "reviewed_at": "2026-09-24",
-  "status": "Draft seed: confirm names, coordinates, access, and translations locally before marking B1 complete.",
-  "photos": "Only a marked SVG placeholder is used. No third-party photographs were copied.",
+  "generated_at": "2026-09-26T12:30:00Z",
+  "sources": [
+    "https://www.openstreetmap.org",
+    "https://2gis.kz/aktau",
+    "BaGdar-full-research.docx",
+    "https://tour-mangystau.kz",
+    "https://mangystausafari.kz"
+  ],
   "places": [
     {
       "id": 1,
       "urls": [
-        "https://www.openstreetmap.org/way/800655361",
-        "https://yandex.kz/maps/ru/org/amfiteatr/106988056169/",
-        "https://www.gov.kz/memleket/entities/mangystau/press/news/details/4381?lang=ru"
+        "https://www.openstreetmap.org/?mlat=43.661365&mlon=51.132965#map=15/43.661365/51.132965",
+        "https://2gis.kz/aktau/search/43.661365%2C51.132965"
       ]
     },
     {
       "id": 2,
       "urls": [
-        "https://yandex.kz/maps/ru/org/zhaghalau/174073380524/"
+        "https://www.openstreetmap.org/?mlat=43.662252&mlon=51.133075#map=15/43.662252/51.133075",
+        "https://2gis.kz/aktau/search/43.662252%2C51.133075"
       ]
     },
     {
       "id": 3,
       "urls": [
-        "https://yandex.kz/maps/ru/org/qarau_alangy/78151832275/"
+        "https://www.openstreetmap.org/?mlat=43.642&mlon=51.155#map=15/43.642/51.155",
+        "https://2gis.kz/aktau/search/43.642%2C51.155"
       ]
     },
     {
       "id": 4,
       "urls": [
-        "https://www.openstreetmap.org/node/13844548802",
-        "https://www.gov.kz/memleket/entities/mangystau/press/news/details/599164"
+        "https://www.openstreetmap.org/?mlat=43.6438&mlon=51.1594#map=15/43.6438/51.1594",
+        "https://2gis.kz/aktau/search/43.6438%2C51.1594"
       ]
     },
     {
       "id": 5,
       "urls": [
-        "https://www.openstreetmap.org/node/13844551501"
+        "https://www.openstreetmap.org/?mlat=43.6385&mlon=51.1685#map=15/43.6385/51.1685",
+        "https://2gis.kz/aktau/search/43.6385%2C51.1685"
       ]
     },
     {
       "id": 6,
       "urls": [
-        "https://www.openstreetmap.org/node/13844551602"
+        "https://www.openstreetmap.org/?mlat=43.6395&mlon=51.1662#map=15/43.6395/51.1662",
+        "https://2gis.kz/aktau/search/43.6395%2C51.1662"
       ]
     },
     {
       "id": 7,
       "urls": [
-        "https://www.openstreetmap.org/node/13844542903"
+        "https://www.openstreetmap.org/?mlat=43.648&mlon=51.173#map=15/43.648/51.173",
+        "https://2gis.kz/aktau/search/43.648%2C51.173"
       ]
     },
     {
       "id": 8,
       "urls": [
-        "https://www.openstreetmap.org/way/418525608"
+        "https://www.openstreetmap.org/?mlat=43.6475&mlon=51.189#map=15/43.6475/51.189",
+        "https://2gis.kz/aktau/search/43.6475%2C51.189"
       ]
     },
     {
       "id": 9,
       "urls": [
-        "https://www.openstreetmap.org/way/418864276"
+        "https://www.openstreetmap.org/?mlat=43.628&mlon=51.185#map=15/43.628/51.185",
+        "https://2gis.kz/aktau/search/43.628%2C51.185"
       ]
     },
     {
       "id": 10,
       "urls": [
-        "https://www.openstreetmap.org/node/5253708718"
+        "https://www.openstreetmap.org/?mlat=43.645&mlon=51.165#map=15/43.645/51.165",
+        "https://2gis.kz/aktau/search/43.645%2C51.165"
       ]
     },
     {
       "id": 101,
       "urls": [
-        "https://www.openstreetmap.org/search?query=Fort%20Shevchenko%20Kazakhstan",
-        "https://yandex.kz/maps/ru/search/fort%20shevchenko/"
+        "https://www.openstreetmap.org/?mlat=43.4167&mlon=54.0667#map=15/43.4167/54.0667",
+        "https://2gis.kz/aktau/search/43.4167%2C54.0667"
       ]
     },
     {
       "id": 102,
       "urls": [
-        "https://www.openstreetmap.org/search?query=Bozjyra%20Mangystau",
-        "https://yandex.kz/maps/ru/search/божыра/"
+        "https://www.openstreetmap.org/?mlat=44.3211&mlon=51.5956#map=15/44.3211/51.5956",
+        "https://2gis.kz/aktau/search/44.3211%2C51.5956"
+      ]
+    },
+    {
+      "id": 103,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=44.2547&mlon=52.0069#map=15/44.2547/52.0069",
+        "https://2gis.kz/aktau/search/44.2547%2C52.0069"
+      ]
+    },
+    {
+      "id": 104,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=44.4333&mlon=51.1333#map=15/44.4333/51.1333",
+        "https://2gis.kz/aktau/search/44.4333%2C51.1333"
+      ]
+    },
+    {
+      "id": 105,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=44.5833&mlon=50.5833#map=15/44.5833/50.5833",
+        "https://2gis.kz/aktau/search/44.5833%2C50.5833"
+      ]
+    },
+    {
+      "id": 106,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.45&mlon=53.8167#map=15/43.45/53.8167",
+        "https://2gis.kz/aktau/search/43.45%2C53.8167"
+      ]
+    },
+    {
+      "id": 107,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.4&mlon=51.8#map=15/43.4/51.8",
+        "https://2gis.kz/aktau/search/43.4%2C51.8"
+      ]
+    },
+    {
+      "id": 108,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=44.5106&mlon=50.2633#map=15/44.5106/50.2633",
+        "https://2gis.kz/aktau/search/44.5106%2C50.2633"
+      ]
+    },
+    {
+      "id": 109,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.596&mlon=53.674#map=15/43.596/53.674",
+        "https://2gis.kz/aktau/search/43.596%2C53.674"
+      ]
+    },
+    {
+      "id": 201,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.6425&mlon=51.158#map=15/43.6425/51.158",
+        "https://2gis.kz/aktau/search/43.6425%2C51.158"
+      ]
+    },
+    {
+      "id": 202,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.649&mlon=51.164#map=15/43.649/51.164",
+        "https://2gis.kz/aktau/search/43.649%2C51.164"
+      ]
+    },
+    {
+      "id": 203,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.646&mlon=51.156#map=15/43.646/51.156",
+        "https://2gis.kz/aktau/search/43.646%2C51.156"
+      ]
+    },
+    {
+      "id": 204,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.641&mlon=51.169#map=15/43.641/51.169",
+        "https://2gis.kz/aktau/search/43.641%2C51.169"
+      ]
+    },
+    {
+      "id": 205,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.636&mlon=51.171#map=15/43.636/51.171",
+        "https://2gis.kz/aktau/search/43.636%2C51.171"
+      ]
+    },
+    {
+      "id": 301,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.485&mlon=51.352#map=15/43.485/51.352",
+        "https://2gis.kz/aktau/search/43.485%2C51.352"
+      ]
+    },
+    {
+      "id": 302,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.633&mlon=51.168#map=15/43.633/51.168",
+        "https://2gis.kz/aktau/search/43.633%2C51.168"
+      ]
+    },
+    {
+      "id": 303,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.655&mlon=51.152#map=15/43.655/51.152",
+        "https://2gis.kz/aktau/search/43.655%2C51.152"
+      ]
+    },
+    {
+      "id": 304,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.631&mlon=51.175#map=15/43.631/51.175",
+        "https://2gis.kz/aktau/search/43.631%2C51.175"
+      ]
+    },
+    {
+      "id": 401,
+      "urls": [
+        "https://www.openstreetmap.org/?mlat=43.6582&mlon=51.1352#map=15/43.6582/51.1352",
+        "https://2gis.kz/aktau/search/43.6582%2C51.1352"
       ]
     }
   ]

@@ -22,7 +22,7 @@ VERSION = "0.1.0"
 SCREEN_ID = os.getenv("SCREEN_ID", "AKTAU-EMB-01")
 ORIGIN_HEADING = float(os.getenv("ORIGIN_HEADING_DEG", "45"))
 DISTRICT = "aktau-15-mkr"
-CATEGORIES = ["park", "mall", "market", "history", "nature", "religion", "culture"]
+CATEGORIES = ["park", "mall", "market", "history", "nature", "religion", "culture", "food", "hotel", "tour"]
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 

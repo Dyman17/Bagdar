@@ -8,9 +8,10 @@ interface Props {
   lang: string
   copy: Copy
   initialReveal?: number
+  onBack?: () => void
 }
 
-export function PageHistory({ scene, lang, copy, initialReveal = 50 }: Props) {
+export function PageHistory({ scene, lang, copy, initialReveal = 50, onBack }: Props) {
   const [reveal, setReveal] = useState(initialReveal)
 
   return (
@@ -24,7 +25,8 @@ export function PageHistory({ scene, lang, copy, initialReveal = 50 }: Props) {
         }
       }}
     >
-      <TarihSkyScreen scene={scene} lang={lang} reveal={reveal} copy={copy} />
+      <TarihSkyScreen scene={scene} lang={lang} reveal={reveal} copy={copy} onBack={onBack} />
     </div>
   )
 }
+

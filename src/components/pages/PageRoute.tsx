@@ -8,13 +8,15 @@ interface Props {
   place: PlaceDetail
   route: RouteResponse
   copy: Copy
+  onBack?: () => void
+  onOpenQr?: () => void
 }
 
 function formatDistance(value: number) {
   return value >= 1000 ? `${(value / 1000).toFixed(1)} км` : `${value} м`
 }
 
-export function PageRoute({ config, places, place, route, copy }: Props) {
+export function PageRoute({ config, places, place, route, copy, onBack, onOpenQr }: Props) {
   const arrowRotation = route.bearing_deg - config.origin.heading_deg
 
   return (
@@ -54,6 +56,29 @@ export function PageRoute({ config, places, place, route, copy }: Props) {
         </div>
 
         {route.steps[0] && <div className="route-step">{route.steps[0].instruction}</div>}
+
+        <div style={{ display: 'flex', gap: '12px', marginTop: '18px' }}>
+          {onOpenQr && (
+            <button
+              type="button"
+              className="kiosk-action-btn btn-qr"
+              onClick={onOpenQr}
+              style={{ padding: '9px 16px', fontSize: '10px' }}
+            >
+              📱 {copy.phonePrompt}
+            </button>
+          )}
+          {onBack && (
+            <button
+              type="button"
+              className="kiosk-action-btn btn-back"
+              onClick={onBack}
+              style={{ padding: '9px 16px', fontSize: '10px' }}
+            >
+              ◀ Назад
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="route-prompt">
@@ -62,3 +87,4 @@ export function PageRoute({ config, places, place, route, copy }: Props) {
     </main>
   )
 }
+

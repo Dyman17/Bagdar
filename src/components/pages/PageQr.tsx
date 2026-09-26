@@ -7,8 +7,10 @@ interface Props {
   place: PlaceDetail | null
   remaining: number
   copy: Copy
+  onBack?: () => void
 }
 
 export function PageQr(props: Props) {
   return <QrScreen {...props} />
 }
+
