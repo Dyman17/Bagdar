@@ -3,7 +3,6 @@ import { api, isMockMode } from './api'
 import { ApiError } from './api-error'
 import { Brand } from './components/Brand'
 import { CatalogScreen } from './components/CatalogScreen'
-import { KioskStoryboardNav } from './components/KioskStoryboardNav'
 import { PageSleep } from './components/pages/PageSleep'
 import { PageGreeting } from './components/pages/PageGreeting'
 import { PageListening } from './components/pages/PageListening'
@@ -73,7 +72,6 @@ export default function App() {
   const [retryCount, setRetryCount] = useState(0)
   const [gesturePrompt, setGesturePrompt] = useState(false)
   const [sceneReveal, setSceneReveal] = useState(0)
-  const [isAutoMode, setIsAutoMode] = useState(true)
   const [lastQuery, setLastQuery] = useState('')
 
   const lastActivity = useRef(Date.now())
@@ -440,9 +438,8 @@ export default function App() {
     },
   })
 
-  // Idle timeout to sleep in Auto Mode
+  // Idle timeout to sleep
   useEffect(() => {
-    if (!isAutoMode) return
     const timer = window.setInterval(() => {
       const elapsed = (Date.now() - lastActivity.current) / 1000
       if (sessionRef.current && elapsed >= (config?.session.idle_timeout_sec ?? 90)) {
@@ -453,7 +450,7 @@ export default function App() {
       }
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [config?.session.idle_timeout_sec, endSession, isAutoMode])
+  }, [config?.session.idle_timeout_sec, endSession])
 
   // TarihSky Reveal Animation
   useEffect(() => {
@@ -540,6 +537,11 @@ export default function App() {
     })
   }, [])
 
+  const toggleNextLang = useCallback(() => {
+    const nextLang = lang === 'kk' ? 'ru' : lang === 'ru' ? 'en' : 'kk'
+    handleLanguageChange(nextLang)
+  }, [handleLanguageChange, lang])
+
   if (!config) {
     return (
       <div className="boot-screen">
@@ -603,19 +605,7 @@ export default function App() {
         screenId={config.screen_id}
         lang={lang}
         live={!offline}
-      />
-
-      {/* Floating Storyboard Nav for all 14 pages */}
-      <KioskStoryboardNav
-        currentPhase={phase}
-        onSelectPhase={(p) => {
-          setIsAutoMode(false)
-          setPhase(p)
-        }}
-        currentLang={lang}
-        onSelectLang={handleLanguageChange}
-        isAutoMode={isAutoMode}
-        onToggleAutoMode={() => setIsAutoMode((prev) => !prev)}
+        onToggleLang={toggleNextLang}
       />
 
       {offline && <div className="network-banner">{copy.offline}</div>}
