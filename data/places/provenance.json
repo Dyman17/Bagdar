@@ -1,0 +1,85 @@
+{
+  "area": "Waterfront near the 15th microdistrict amphitheater, Aktau",
+  "reviewed_at": "2026-09-24",
+  "status": "Draft seed: confirm names, coordinates, access, and translations locally before marking B1 complete.",
+  "photos": "Only a marked SVG placeholder is used. No third-party photographs were copied.",
+  "places": [
+    {
+      "id": 1,
+      "urls": [
+        "https://www.openstreetmap.org/way/800655361",
+        "https://yandex.kz/maps/ru/org/amfiteatr/106988056169/",
+        "https://www.gov.kz/memleket/entities/mangystau/press/news/details/4381?lang=ru"
+      ]
+    },
+    {
+      "id": 2,
+      "urls": [
+        "https://yandex.kz/maps/ru/org/zhaghalau/174073380524/"
+      ]
+    },
+    {
+      "id": 3,
+      "urls": [
+        "https://yandex.kz/maps/ru/org/qarau_alangy/78151832275/"
+      ]
+    },
+    {
+      "id": 4,
+      "urls": [
+        "https://www.openstreetmap.org/node/13844548802",
+        "https://www.gov.kz/memleket/entities/mangystau/press/news/details/599164"
+      ]
+    },
+    {
+      "id": 5,
+      "urls": [
+        "https://www.openstreetmap.org/node/13844551501"
+      ]
+    },
+    {
+      "id": 6,
+      "urls": [
+        "https://www.openstreetmap.org/node/13844551602"
+      ]
+    },
+    {
+      "id": 7,
+      "urls": [
+        "https://www.openstreetmap.org/node/13844542903"
+      ]
+    },
+    {
+      "id": 8,
+      "urls": [
+        "https://www.openstreetmap.org/way/418525608"
+      ]
+    },
+    {
+      "id": 9,
+      "urls": [
+        "https://www.openstreetmap.org/way/418864276"
+      ]
+    },
+    {
+      "id": 10,
+      "urls": [
+        "https://www.openstreetmap.org/node/5253708718"
+      ]
+    },
+    {
+      "id": 101,
+      "urls": [
+        "https://www.openstreetmap.org/search?query=Fort%20Shevchenko%20Kazakhstan",
+        "https://yandex.kz/maps/ru/search/fort%20shevchenko/"
+      ]
+    },
+    {
+      "id": 102,
+      "urls": [
+        "https://www.openstreetmap.org/search?query=Bozjyra%20Mangystau",
+        "https://yandex.kz/maps/ru/search/божыра/"
+      ]
+    }
+  ]
+}
