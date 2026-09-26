@@ -75,6 +75,7 @@ export default function App() {
   const [lastQuery, setLastQuery] = useState('')
 
   const lastActivity = useRef(Date.now())
+  const gesturePromptedRef = useRef(false)
   const phaseRef = useRef<KioskPhase>(phase)
   const sessionRef = useRef<string | null>(sessionId)
   const speakingRef = useRef(speaking)
@@ -131,6 +132,7 @@ export default function App() {
     setAnswer('Здравствуйте! Спросите меня о городе.')
     setSuggestions([])
     lastActivity.current = Date.now()
+    gesturePromptedRef.current = false
     postEvent('session_start', id)
     void speak('Здравствуйте! Спросите меня о городе.', lang)
     return id
@@ -139,9 +141,10 @@ export default function App() {
   const endSession = useCallback(
     async (farewell = true) => {
       const id = sessionRef.current
-      if (!id) return
-      if (farewell) await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
-      await api.endSession(id).catch(() => setOffline(true))
+      if (id) {
+        if (farewell) await speak('Спасибо за прогулку. До встречи у Каспия.', lang)
+        await api.endSession(id).catch(() => setOffline(true))
+      }
       sessionRef.current = null
       setSessionId(null)
       setPlace(null)
@@ -154,6 +157,7 @@ export default function App() {
       setGesturePrompt(false)
       setPhase('sleep')
       lastActivity.current = Date.now()
+      gesturePromptedRef.current = false
     },
     [lang, speak],
   )
@@ -372,14 +376,6 @@ export default function App() {
           const nextRetry = retryCount + 1
           setRetryCount(nextRetry)
 
-          // If speech unrecognized 2 times in a row -> show gestures!
-          if (nextRetry >= 2) {
-            setAnswer(copy.gesture)
-            setPhase('gestures')
-            void speak(copy.gesture, lang)
-            return
-          }
-
           const message = copy.repeat
           setAnswer(message)
           setPhase('error')
@@ -406,11 +402,13 @@ export default function App() {
     setReturnPhase(current)
     setPhase('listening')
     lastActivity.current = Date.now()
+    gesturePromptedRef.current = false
   }, [startSession])
 
   const handlePresence = useCallback(() => {
     if (!sessionRef.current) startSession()
     lastActivity.current = Date.now()
+    gesturePromptedRef.current = false
   }, [startSession])
 
   const { db, permission } = useAmbientAudio({
@@ -422,35 +420,75 @@ export default function App() {
   const { interim, supported } = useSpeechRecognition({
     active: phase === 'listening' || phase === 'recording',
     language: speechLocale(lang),
-    onComplete: (text) => void submitTurn(text),
+    onComplete: (text) => {
+      lastActivity.current = Date.now()
+      gesturePromptedRef.current = false
+      void submitTurn(text)
+    },
     onNoSpeech: () => {
+      // User is silent during listening turn
+      // Note: gesture mode is requested only when 15s of silence pass
       setPhase('error')
-      setRetryCount((current) => {
-        const next = current + 1
-        if (next >= 2) {
-          setPhase('gestures')
-          void speak(copy.gesture, lang)
-        } else {
-          void speak(copy.repeat, lang)
-        }
-        return next
-      })
+      setAnswer(copy.repeat)
+      void speak(copy.repeat, lang)
     },
   })
 
-  // Idle timeout to sleep
+  // User interaction listener resets silence / idle timers
+  useEffect(() => {
+    const handleActivity = () => {
+      lastActivity.current = Date.now()
+      gesturePromptedRef.current = false
+      if (phaseRef.current === 'gestures') {
+        setPhase(returnPhase || 'catalog')
+      }
+    }
+
+    window.addEventListener('pointerdown', handleActivity, { passive: true })
+    window.addEventListener('touchstart', handleActivity, { passive: true })
+    window.addEventListener('keydown', handleActivity, { passive: true })
+
+    return () => {
+      window.removeEventListener('pointerdown', handleActivity)
+      window.removeEventListener('touchstart', handleActivity)
+      window.removeEventListener('keydown', handleActivity)
+    }
+  }, [returnPhase])
+
+  // Silence timers:
+  // 15 seconds of silence -> ask for sign language (gestures)
+  // 25 seconds of silence -> sleep
   useEffect(() => {
     const timer = window.setInterval(() => {
+      // While kiosk is speaking, don't count silence against user
+      if (speakingRef.current) {
+        if (!gesturePromptedRef.current) {
+          lastActivity.current = Date.now()
+        }
+        return
+      }
+
+      if (phaseRef.current === 'sleep') return
+
       const elapsed = (Date.now() - lastActivity.current) / 1000
-      if (sessionRef.current && elapsed >= (config?.session.idle_timeout_sec ?? 90)) {
+
+      if (elapsed >= 25) {
+        // Sleep when silent for 25 seconds
         lastActivity.current = Date.now()
+        gesturePromptedRef.current = false
         void endSession(true)
-      } else if (!sessionRef.current && elapsed >= 120 && phaseRef.current !== 'sleep' && phaseRef.current !== 'idle') {
-        setPhase('sleep')
+      } else if (elapsed >= 15 && !gesturePromptedRef.current && phaseRef.current !== 'gestures') {
+        // Request sign language ONLY when silent for 15 seconds
+        gesturePromptedRef.current = true
+        setReturnPhase((current) => (current === 'gestures' ? 'catalog' : current))
+        setPhase('gestures')
+        setAnswer(copy.gesture)
+        void speak(copy.gesture, lang)
       }
     }, 1000)
+
     return () => window.clearInterval(timer)
-  }, [config?.session.idle_timeout_sec, endSession])
+  }, [copy.gesture, endSession, lang, speak])
 
   // TarihSky Reveal Animation
   useEffect(() => {
@@ -763,6 +801,8 @@ export default function App() {
               <PageGestures
                 copy={copy}
                 onGestureRecognized={(sign) => {
+                  lastActivity.current = Date.now()
+                  gesturePromptedRef.current = false
                   void speak(`Принят жест: ${sign}`, lang)
                   if (sign.includes('Вариант 1')) void handleSelectPlace(1)
                   else if (sign.includes('Вариант 2')) void handleSelectPlace(2)
