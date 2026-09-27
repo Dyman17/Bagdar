@@ -100,8 +100,13 @@ def opening_state(hours: Hours | None, now: datetime | None = None) -> tuple[boo
     local_now = (now or datetime.now(ZoneInfo(hours.tz))).astimezone(ZoneInfo(hours.tz))
     opening = datetime.strptime(hours.open, '%H:%M').time()
     closing = datetime.strptime(hours.close, '%H:%M').time()
-    if local_now.isoweekday() in hours.days and opening <= local_now.time() < closing:
+    today = local_now.isoweekday() in hours.days
+    if opening < closing and today and opening <= local_now.time() < closing:
         return True, hours.open
+    if opening > closing:
+        yesterday = (local_now - timedelta(days=1)).isoweekday() in hours.days
+        if (today and local_now.time() >= opening) or (yesterday and local_now.time() < closing):
+            return True, hours.open
     for offset in range(8):
         day = local_now + timedelta(days=offset)
         if day.isoweekday() in hours.days and (offset > 0 or local_now.time() < opening):
