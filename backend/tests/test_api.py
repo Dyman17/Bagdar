@@ -111,7 +111,7 @@ def test_scene_qr_event_session_health():
 
     assert client.post("/api/session/end", json={"session_id": "s1"}).json() == {"ok": True}
     h = client.get("/api/health").json()
-    assert h["status"] == "ok" and h["version"] == "0.1.0"
+    assert h["status"] in ("ok", "degraded") and h["version"] == "0.1.0" and h["db"] is True
 
     assert "sessions" in client.get("/api/admin/metrics").json()
     assert "sessions" in client.get("/api/stats").json()

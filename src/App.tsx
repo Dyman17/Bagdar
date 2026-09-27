@@ -213,7 +213,7 @@ export default function App() {
         setRoute(defaultRoute)
         setScene(mockScene)
         setQr({
-          url: 'https://bagdar.kz/route/2?token=demo',
+          url: `${window.location.origin}/r/demo`,
           payload_version: 1,
           expires_in_sec: 60,
         })
@@ -644,7 +644,7 @@ export default function App() {
 
   const activeScene: SceneResponse = scene || mockScene
   const activeQr: QrResponse = qr || {
-    url: 'https://bagdar.kz/route/2?token=demo',
+    url: typeof window !== 'undefined' ? `${window.location.origin}/r/demo` : '/r/demo',
     payload_version: 1,
     expires_in_sec: 60,
   }

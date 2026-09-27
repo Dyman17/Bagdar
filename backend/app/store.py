@@ -17,10 +17,21 @@ def log_feedback(session_id: str, place_id: int | None = None, rating: int | Non
     FEEDBACK.append({"session_id": session_id, "place_id": place_id, "rating": rating, "comment": comment, "ts": time.time()})
 
 
+def cleanup_expired() -> None:
+    now = time.time()
+    expired_tokens = [k for k, v in list(QR_TOKENS.items()) if v.get("exp", 0) < now]
+    for k in expired_tokens:
+        QR_TOKENS.pop(k, None)
+    expired_sessions = [k for k, v in list(SESSIONS.items()) if now - v.get("created_at", now) > 14400]
+    for k in expired_sessions:
+        SESSIONS.pop(k, None)
+
+
 def get_session(session_id: str) -> dict:
+    cleanup_expired()
     sess = SESSIONS.get(session_id)
     if sess is None:
-        sess = {"lang": "kk", "places": [], "last_intent": None, "turns": [], "prefs": {}}
+        sess = {"lang": "kk", "places": [], "last_intent": None, "turns": [], "prefs": {}, "created_at": time.time()}
         SESSIONS[session_id] = sess
     return sess
 

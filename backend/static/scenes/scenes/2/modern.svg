@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a192f"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)" />
+  <!-- Sea horizon -->
+  <path d="M0,500 Q300,480 600,510 T1200,490 L1200,800 L0,800 Z" fill="#0369a1" opacity="0.85"/>
+  <!-- Cliffs / Architecture -->
+  <path d="M0,450 Q200,320 450,420 T900,360 L1200,480 L1200,800 L0,800 Z" fill="#0f172a"/>
+  <path d="M200,800 L350,380 L500,800 Z" fill="#1e293b"/>
+  <path d="M480,800 L620,320 L760,800 Z" fill="#334155"/>
+  
+  <!-- Overlay info badge -->
+  <rect x="60" y="60" width="400" height="120" rx="16" fill="rgba(0,0,0,0.65)" stroke="#38bdf8" stroke-width="2"/>
+  <text x="84" y="105" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#38bdf8">2026: Современный променад</text>
+  <text x="84" y="138" font-family="system-ui, sans-serif" font-size="18" fill="#f8fafc">Набережная 15-го микрорайона</text>
+  <text x="84" y="160" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">Каспийский променад</text>
+</svg>

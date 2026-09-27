@@ -620,7 +620,25 @@ def session_end(body: SessionEndIn):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "db": True, "route_provider": True, "ai": ai_enabled(), "version": VERSION}
+    db_ok = len(places_all()) > 0
+    route_ok = False
+    try:
+        req = urllib.request.Request("https://router.project-osrm.org", headers={"User-Agent": "BaGdar-Kiosk/1.0"})
+        with urllib.request.urlopen(req, timeout=0.6) as r:
+            route_ok = r.status in (200, 400, 404)
+    except Exception:
+        route_ok = False
+
+    status = "ok" if (db_ok and route_ok) else ("degraded" if db_ok else "down")
+    return {
+        "status": status,
+        "db": db_ok,
+        "route_provider": route_ok,
+        "route_fallback_ready": True,
+        "ai": ai_enabled(),
+        "places_count": len(places_all()),
+        "version": VERSION,
+    }
 
 
 # ---------- Админ / аналитика ----------
